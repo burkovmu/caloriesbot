@@ -32,19 +32,6 @@ body {
 }
 
 .nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  max-width: 480px;
-  margin: 0 auto;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1);
   padding-bottom: env(safe-area-inset-bottom);
   position: fixed;
   bottom: 0;
@@ -61,27 +48,10 @@ body {
 .nav-content {
   display: flex;
   justify-content: space-around;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  gap: 0.5rem;
-  display: flex;
-  justify-content: space-around;
   padding: 0.5rem 0;
 }
 
 .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #8e8e93;
-  min-width: 60px;
-  min-height: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -94,22 +64,15 @@ body {
 }
 
 .nav-item:hover {
-  color: #007aff;
-  background: rgba(0, 122, 255, 0.1);
   color: #667eea;
 }
 
 .nav-item.active {
-  color: #007aff;
-  background: rgba(0, 122, 255, 0.15);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
 .nav-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  transition: transform 0.2s ease;
   width: 1.5rem;
   height: 1.5rem;
 }
@@ -123,9 +86,9 @@ body {
 .main-content {
   padding: 1rem;
   padding-top: 1rem;
-  padding-bottom: 7rem;
+  padding-bottom: 6rem;
   padding: 1rem;
-  padding-bottom: 7rem;
+  padding-bottom: 6rem;
   background: #ffffff;
 }
 
@@ -534,7 +497,7 @@ body {
 .main-content {
   padding: 1rem;
   padding-top: 1rem;
-  padding-bottom: 7rem;
+  padding-bottom: 6rem;
   background: #ffffff !important;
 }
 
@@ -570,35 +533,10 @@ body {
 /* iPhone Safe Area Support */
 @supports (padding: max(0px)) {
   .nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  max-width: 480px;
-  margin: 0 auto;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1);
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
   
   .main-content {
     padding-bottom: max(6rem, calc(6rem + env(safe-area-inset-bottom)));
   }
-}
-
-.nav-item.active .nav-icon {
-  transform: scale(1.1);
-}
-
-.nav-text {
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  text-align: center;
-  line-height: 1.2;
 }
