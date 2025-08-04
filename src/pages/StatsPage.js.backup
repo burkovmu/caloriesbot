@@ -81,130 +81,28 @@ const StatsPage = () => {
 
   return (
     <div>
-      {/* Beautiful Header */}
-      <section style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: "1.5rem",
-        padding: "2rem",
-        marginBottom: "1.5rem",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: "0 10px 25px rgba(102, 126, 234, 0.3)"
-      }}>
-        {/* Background Pattern */}
-        <div style={{
-          position: "absolute",
-          top: "-50%",
-          right: "-20%",
-          width: "200px",
-          height: "200px",
-          background: "rgba(255, 255, 255, 0.1)",
-          borderRadius: "50%",
-          animation: "float 6s ease-in-out infinite"
-        }} />
-        <div style={{
-          position: "absolute",
-          bottom: "-30%",
-          left: "-10%",
-          width: "150px",
-          height: "150px",
-          background: "rgba(255, 255, 255, 0.05)",
-          borderRadius: "50%",
-          animation: "float 8s ease-in-out infinite reverse"
-        }} />
-        
-        {/* Content */}
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          {/* Icon */}
-          <div style={{
-            width: "4rem",
-            height: "4rem",
-            background: "rgba(255, 255, 255, 0.2)",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 1rem",
-            backdropFilter: "blur(10px)",
-            border: "2px solid rgba(255, 255, 255, 0.3)"
+      {/* Header */}
+      <section className="card">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{ 
+            width: '3rem', 
+            height: '3rem', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white'
           }}>
-            <BarChart3 className="w-8 h-8 text-white" style={{ animation: "pulse 2s infinite" }} />
+            <BarChart3 className="w-6 h-6" />
           </div>
-          
-          {/* Title */}
-          <h1 style={{
-            fontSize: "1.75rem",
-            fontWeight: "bold",
-            color: "white",
-            marginBottom: "0.5rem",
-            textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
-          }}>
-            Статистика
-          </h1>
-          
-          {/* Subtitle */}
-          <p style={{
-            color: "rgba(255, 255, 255, 0.9)",
-            fontSize: "1rem",
-            lineHeight: "1.5",
-            marginBottom: "1.5rem",
-            maxWidth: "320px",
-            margin: "0 auto 1.5rem"
-          }}>
-            Анализ вашего питания и прогресса
-          </p>
-          
-          {/* Quick Stats */}
-          <div style={{
-            display: "flex",
-            justifyContent: "space-around",
-            background: "rgba(255, 255, 255, 0.15)",
-            borderRadius: "1rem",
-            padding: "1rem",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.2)"
-          }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{
-                fontSize: "1.25rem",
-                fontWeight: "bold",
-                color: "white",
-                marginBottom: "0.25rem"
-              }}>
-                📊
-              </div>
-              <div style={{
-                fontSize: "0.75rem",
-                color: "rgba(255, 255, 255, 0.8)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                Анализ
-              </div>
-            </div>
-            <div style={{
-              width: "1px",
-              background: "rgba(255, 255, 255, 0.3)",
-              margin: "0 0.5rem"
-            }} />
-            <div style={{ textAlign: "center" }}>
-              <div style={{
-                fontSize: "1.25rem",
-                fontWeight: "bold",
-                color: "white",
-                marginBottom: "0.25rem"
-              }}>
-                📈
-              </div>
-              <div style={{
-                fontSize: "0.75rem",
-                color: "rgba(255, 255, 255, 0.8)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                Прогресс
-              </div>
-            </div>
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
+              Статистика
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+              Анализ вашего питания и прогресса
+            </p>
           </div>
         </div>
       </section>
@@ -288,29 +186,27 @@ const StatsPage = () => {
 
       {/* Quick Stats */}
       <section className="card">
-        <h3 className="meals-title">Быстрая статистика</h3>
+        <h3 className="meals-title">Ключевые показатели</h3>
+        
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           {quickStats.map((stat) => (
-            <div key={stat.label} style={{ 
-              padding: '1rem', 
-              background: '#f9fafb', 
-              borderRadius: '0.75rem',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div key={stat.label} style={{ padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <div style={{ color: stat.color }}>
                   <stat.icon className="w-5 h-5" />
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{stat.trend}</span>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                  {stat.label}
+                </div>
               </div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
                 {stat.value}
               </div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                {stat.label}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
                 {stat.unit}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: stat.trend.includes('+') ? '#10b981' : stat.trend.includes('-') ? '#ef4444' : '#6b7280' }}>
+                {stat.trend}
               </div>
             </div>
           ))}
@@ -320,57 +216,91 @@ const StatsPage = () => {
       {/* Weekly Overview */}
       <section className="card">
         <h3 className="meals-title">Недельный обзор</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem' }}>
-          {weeklyData.map((day) => (
-            <div key={day.day} style={{ textAlign: 'center', padding: '0.75rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                {day.day}
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '8rem', padding: '1rem 0' }}>
+          {weeklyData.map((day, index) => {
+            const maxCalories = Math.max(...weeklyData.map(d => d.calories));
+            const height = (day.calories / maxCalories) * 100;
+            
+            return (
+              <div key={day.day} style={{ textAlign: 'center', flex: 1 }}>
+                <div 
+                  style={{ 
+                    height: `${height}%`,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '0.25rem',
+                    marginBottom: '0.5rem',
+                    minHeight: '1rem'
+                  }}
+                />
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                  {day.day}
+                </div>
+                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#1f2937' }}>
+                  {day.calories}
+                </div>
               </div>
-              <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937' }}>
-                {day.calories}
-              </div>
-              <div style={{ fontSize: '0.625rem', color: '#9ca3af' }}>
-                ккал
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Personalized Insights */}
+      <section className="card">
+        <h3 className="meals-title">Персональные инсайты</h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {insights.map((insight, index) => (
+            <div 
+              key={index}
+              style={{ 
+                padding: '1rem', 
+                background: insight.type === 'positive' ? '#f0fdf4' : 
+                           insight.type === 'warning' ? '#fffbeb' : '#eff6ff',
+                borderRadius: '0.5rem',
+                borderLeft: `4px solid ${
+                  insight.type === 'positive' ? '#10b981' : 
+                  insight.type === 'warning' ? '#f59e0b' : '#3b82f6'
+                }`
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div style={{ fontSize: '1.5rem' }}>
+                  {insight.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+                    {insight.title}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5' }}>
+                    {insight.description}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Personalized Insights */}
+      {/* Detailed Stats */}
       <section className="card">
-        <h3 className="meals-title">Персональные рекомендации</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {insights.map((insight, index) => (
-            <div key={index} style={{
-              padding: '1rem',
-              background: insight.type === 'positive' ? '#f0fdf4' : 
-                         insight.type === 'warning' ? '#fef3c7' : '#eff6ff',
-              borderRadius: '0.75rem',
-              border: `1px solid ${
-                insight.type === 'positive' ? '#bbf7d0' : 
-                insight.type === 'warning' ? '#fde68a' : '#bfdbfe'
-              }`
-            }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <div style={{ fontSize: '1.5rem' }}>{insight.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
-                    color: '#1f2937', 
-                    marginBottom: '0.25rem' 
-                  }}>
-                    {insight.title}
-                  </h4>
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: '#6b7280', 
-                    lineHeight: '1.5' 
-                  }}>
-                    {insight.description}
-                  </p>
-                </div>
+        <h3 className="meals-title">Детальная статистика</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          {[
+            { label: 'Средние калории за неделю', value: '2050 ккал', color: '#f59e0b' },
+            { label: 'Лучший день', value: 'Суббота', color: '#10b981' },
+            { label: 'Самый активный прием пищи', value: 'Обед', color: '#3b82f6' },
+            { label: 'Точность подсчета', value: '92%', color: '#8b5cf6' },
+            { label: 'Любимый продукт', value: 'Куриная грудка', color: '#ef4444' },
+            { label: 'Цель на следующую неделю', value: '2000 ккал/день', color: '#06b6d4' }
+          ].map((stat) => (
+            <div key={stat.label} style={{ padding: '0.75rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+                {stat.label}
+              </div>
+              <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937' }}>
+                {stat.value}
               </div>
             </div>
           ))}
@@ -380,4 +310,4 @@ const StatsPage = () => {
   );
 };
 
-export default StatsPage;
+export default StatsPage; 
