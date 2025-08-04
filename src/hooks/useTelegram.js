@@ -22,6 +22,12 @@ export const useTelegram = () => {
     console.log('window.Telegram:', window.Telegram);
     console.log('window.Telegram?.WebApp:', window.Telegram?.WebApp);
     
+    // Отключаем уведомление о несохраненных изменениях
+    window.onbeforeunload = null;
+    window.addEventListener('beforeunload', (e) => {
+      return null;
+    }, true);
+    
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       

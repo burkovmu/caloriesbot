@@ -26,29 +26,33 @@ function App() {
 
   // Предотвращаем уведомление о несохраненных изменениях при закрытии
   useEffect(() => {
-    // Отключаем уведомление через прямое присваивание
+    // Полностью отключаем уведомление
     window.onbeforeunload = null;
     
+    // Переопределяем обработчик
+    const originalBeforeUnload = window.onbeforeunload;
+    window.onbeforeunload = null;
+    
+    // Также отключаем через addEventListener
     const handleBeforeUnload = (e) => {
-      // Полностью отключаем уведомление
-      e.preventDefault();
-      e.stopPropagation();
-      e.returnValue = undefined;
-      return undefined;
+      // Не делаем ничего - просто игнорируем событие
+      return null;
     };
 
-    const handleUnload = (e) => {
-      // Дополнительная защита
-      e.preventDefault();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload, { capture: true });
-    window.addEventListener('unload', handleUnload, { capture: true });
+    // Проверяем, что мы в Telegram WebView
+    if (window.Telegram && window.Telegram.WebApp) {
+      // В Telegram WebView отключаем уведомление более агрессивно
+      window.onbeforeunload = null;
+      window.addEventListener('beforeunload', handleBeforeUnload, true);
+      
+      // Дополнительно отключаем через document
+      document.addEventListener('beforeunload', handleBeforeUnload, true);
+    }
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload, { capture: true });
-      window.removeEventListener('unload', handleUnload, { capture: true });
-      window.onbeforeunload = null;
+      window.removeEventListener('beforeunload', handleBeforeUnload, true);
+      document.removeEventListener('beforeunload', handleBeforeUnload, true);
+      window.onbeforeunload = originalBeforeUnload;
     };
   }, []);
 

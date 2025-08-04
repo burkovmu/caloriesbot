@@ -18,11 +18,9 @@
       // Отключаем уведомление о несохраненных изменениях
       window.onbeforeunload = null;
       window.addEventListener('beforeunload', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.returnValue = undefined;
-        return undefined;
-      }, { capture: true });
+        // Просто игнорируем событие
+        return null;
+      }, true);
     </script>
   </head>
   <body>
