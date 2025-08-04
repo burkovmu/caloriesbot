@@ -32,7 +32,6 @@ body {
 }
 
 .nav {
-  padding-bottom: env(safe-area-inset-bottom);
   position: fixed;
   bottom: 0;
   left: 0;
@@ -86,9 +85,9 @@ body {
 .main-content {
   padding: 1rem;
   padding-top: 1rem;
-  padding-bottom: 6rem;
+  padding-bottom: 5rem;
   padding: 1rem;
-  padding-bottom: 6rem;
+  padding-bottom: 5rem;
   background: #ffffff;
 }
 
@@ -497,7 +496,7 @@ body {
 .main-content {
   padding: 1rem;
   padding-top: 1rem;
-  padding-bottom: 6rem;
+  padding-bottom: 5rem;
   background: #ffffff !important;
 }
 
@@ -530,13 +529,3 @@ body {
   background: white !important;
   color: #1f2937 !important;
 } 
-/* iPhone Safe Area Support */
-@supports (padding: max(0px)) {
-  .nav {
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
-  }
-  
-  .main-content {
-    padding-bottom: max(6rem, calc(6rem + env(safe-area-inset-bottom)));
-  }
-}
