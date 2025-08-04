@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Flame, Target, Plus, BarChart3, Settings, Book, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import TodayMeals from '../components/TodayMeals';
 
 const HomePage = () => {
   const { state, supabaseActions } = useApp();
@@ -255,22 +256,7 @@ const HomePage = () => {
       </section>
 
       {/* Today's Meals */}
-      <section>
-        <h3 className="meals-title">Сегодняшние приемы пищи</h3>
-        <div className="meals-section">
-          {['Завтрак', 'Обед', 'Ужин'].map((meal, index) => (
-            <div key={meal} className="meal-item">
-              <div className="meal-icon">
-                {index === 0 && '☀️'}
-                {index === 1 && '🌤️'}
-                {index === 2 && '🌙'}
-              </div>
-              <div className="meal-name">{meal}</div>
-              <div className="meal-calories">0 ккал</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <TodayMeals />
     </div>
   );
 };

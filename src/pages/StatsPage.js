@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Calendar, Target, Flame, Dumbbell, Droplets, Wheat, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import TodayMeals from '../components/TodayMeals';
 
 const StatsPage = () => {
   const { state, supabaseActions } = useApp();
@@ -528,6 +529,9 @@ const StatsPage = () => {
           ))}
         </div>
       </section>
+
+      {/* Today's Meals */}
+      <TodayMeals />
     </div>
   );
 };
