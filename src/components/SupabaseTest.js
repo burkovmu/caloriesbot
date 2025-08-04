@@ -131,7 +131,7 @@ const SupabaseTest = () => {
                 <strong>{item.food_name}</strong> - {item.calories} ккал
                 <br />
                 <span className="text-gray-600">
-                  Белки: {item.proteins}g, Жиры: {item.fats}g, Углеводы: {item.carbs}g
+                  Белки: {Math.round(item.proteins)}g, Жиры: {Math.round(item.fats)}g, Углеводы: {Math.round(item.carbs)}g
                 </span>
                 <br />
                 <span className="text-xs text-gray-500">

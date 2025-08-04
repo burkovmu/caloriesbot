@@ -377,7 +377,7 @@ const StatsPage = () => {
                 <macro.icon className="w-5 h-5 mx-auto" />
               </div>
               <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
-                {macro.current}/{macro.target}
+                {Math.round(macro.current)}/{Math.round(macro.target)}
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
                 {macro.label}

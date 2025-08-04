@@ -148,9 +148,9 @@ const TodayMeals = () => {
                   gap: '1rem'
                 }}>
                   <span>{meal.calories} ккал</span>
-                  <span>Белки: {meal.proteins}g</span>
-                  <span>Жиры: {meal.fats}g</span>
-                  <span>Углеводы: {meal.carbs}g</span>
+                  <span>Белки: {Math.round(meal.proteins)}g</span>
+                  <span>Жиры: {Math.round(meal.fats)}g</span>
+                  <span>Углеводы: {Math.round(meal.carbs)}g</span>
                 </div>
                 <div style={{ 
                   fontSize: '0.75rem', 
@@ -204,9 +204,9 @@ const TodayMeals = () => {
               justifyContent: 'space-between'
             }}>
               <span>{todayMeals.reduce((sum, meal) => sum + (meal.calories || 0), 0)} ккал</span>
-              <span>Белки: {todayMeals.reduce((sum, meal) => sum + (parseFloat(meal.proteins) || 0), 0).toFixed(1)}g</span>
-              <span>Жиры: {todayMeals.reduce((sum, meal) => sum + (parseFloat(meal.fats) || 0), 0).toFixed(1)}g</span>
-              <span>Углеводы: {todayMeals.reduce((sum, meal) => sum + (parseFloat(meal.carbs) || 0), 0).toFixed(1)}g</span>
+              <span>Белки: {Math.round(todayMeals.reduce((sum, meal) => sum + (parseFloat(meal.proteins) || 0), 0))}g</span>
+              <span>Жиры: {Math.round(todayMeals.reduce((sum, meal) => sum + (parseFloat(meal.fats) || 0), 0))}g</span>
+              <span>Углеводы: {Math.round(todayMeals.reduce((sum, meal) => sum + (parseFloat(meal.carbs) || 0), 0))}g</span>
             </div>
           </div>
         </div>
