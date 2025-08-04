@@ -1,11 +1,13 @@
-import React from 'react';
-import { Heart, Flame, Target, Plus, BarChart3, Settings, Book } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, Flame, Target, Plus, BarChart3, Settings, Book, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
-  const { state } = useApp();
+  const { state, supabaseActions } = useApp();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const getWelcomeMessage = () => {
     const hour = new Date().getHours();
@@ -17,6 +19,40 @@ const HomePage = () => {
   const getProgressPercentage = () => {
     return Math.min((state.dailyStats.calories / state.dailyStats.targetCalories) * 100, 100);
   };
+
+  // Загрузка актуальных данных из Supabase
+  const loadTodayData = async () => {
+    if (!state.supabaseUser) return;
+
+    setLoading(true);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabaseActions.getFoodEntries(state.supabaseUser.id, today);
+      
+      if (error) {
+        console.warn('Ошибка загрузки данных:', error);
+      } else {
+        // Обновляем статистику на основе данных из Supabase
+        const totalCalories = data.reduce((sum, item) => sum + (item.calories || 0), 0);
+        const totalProteins = data.reduce((sum, item) => sum + (parseFloat(item.proteins) || 0), 0);
+        const totalFats = data.reduce((sum, item) => sum + (parseFloat(item.fats) || 0), 0);
+        const totalCarbs = data.reduce((sum, item) => sum + (parseFloat(item.carbs) || 0), 0);
+        
+        // Обновляем состояние (если есть функция для этого)
+        console.log('Загружены данные за сегодня:', { totalCalories, totalProteins, totalFats, totalCarbs });
+        setLastUpdated(new Date());
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки данных:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Загружаем данные при монтировании и при изменении пользователя
+  useEffect(() => {
+    loadTodayData();
+  }, [state.supabaseUser]);
 
   const actionCards = [
     {

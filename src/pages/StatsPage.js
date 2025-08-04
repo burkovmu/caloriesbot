@@ -41,9 +41,21 @@ const StatsPage = () => {
     }
   };
 
-  // Загружаем статистику при монтировании компонента
+  // Загружаем статистику при монтировании компонента и при изменении пользователя
   useEffect(() => {
     loadSupabaseStats();
+  }, [state.supabaseUser]);
+
+  // Загружаем статистику при каждом открытии страницы
+  useEffect(() => {
+    const handleFocus = () => {
+      if (state.supabaseUser) {
+        loadSupabaseStats();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [state.supabaseUser]);
 
   const weeklyData = [
@@ -518,3 +530,4 @@ const StatsPage = () => {
 };
 
 export default StatsPage;
+
