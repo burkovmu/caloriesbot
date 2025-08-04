@@ -90,7 +90,7 @@ const appReducer = (state, action) => {
 
 export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { getUserOrCreate, addFoodEntry, getFoodEntries, getUserStats, addAIRequest, deleteFoodEntry, loading: supabaseLoading, error: supabaseError } = useSupabase();
+  const { getUserOrCreate, addFoodEntry, getFoodEntries, getUserStats, addAIRequest, deleteFoodEntry, updateUserSettings, loading: supabaseLoading, error: supabaseError } = useSupabase();
   const { telegramUser: hookTelegramUser } = useTelegram();
   
   // Используем telegramUser из пропов или из хука
@@ -105,6 +105,25 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
     resetDailyStats: () => dispatch({ type: 'RESET_DAILY_STATS' }),
     setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
     setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
+    saveUserSettings: async (settings) => {
+      if (!state.supabaseUser) return;
+      
+      try {
+        const { error } = await updateUserSettings(state.supabaseUser.id, settings);
+        
+        if (error) {
+          console.warn('Ошибка сохранения настроек:', error);
+          return;
+        }
+        
+        // Обновляем локальное состояние
+        actions.setSettings(settings);
+        
+        console.log('✅ Настройки сохранены в Supabase:', settings);
+      } catch (err) {
+        console.error('Ошибка сохранения настроек:', err);
+      }
+    },
     syncFromSupabase: async () => {
       if (!state.supabaseUser) return;
       
@@ -180,6 +199,11 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
               if (data) {
                 // console.log('AppContext: Supabase пользователь создан:', data);
                 actions.setSupabaseUser(data);
+                
+                // Загружаем настройки пользователя
+                if (data.settings) {
+                  actions.setSettings(data.settings);
+                }
                 
                 // Синхронизируем данные из Supabase после создания пользователя
                 setTimeout(async () => {

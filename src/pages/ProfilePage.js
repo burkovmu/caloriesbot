@@ -12,8 +12,17 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...(state.user || {}) });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     actions.setUser(editData);
+    
+    // Сохраняем настройки в Supabase
+    if (state.supabaseUser) {
+      await actions.saveUserSettings({
+        ...state.settings,
+        user: editData
+      });
+    }
+    
     setIsEditing(false);
     showAlert('Профиль обновлен!');
   };
@@ -79,7 +88,15 @@ const ProfilePage = () => {
       title: 'Уведомления',
       description: 'Напоминания о приемах пищи',
       value: state.settings.notifications ? 'Включены' : 'Выключены',
-      onClick: () => actions.setSettings({ notifications: !state.settings.notifications })
+      onClick: async () => {
+        const newSettings = { notifications: !state.settings.notifications };
+        actions.setSettings(newSettings);
+        
+        // Сохраняем в Supabase
+        if (state.supabaseUser) {
+          await actions.saveUserSettings(newSettings);
+        }
+      }
     },
     {
       icon: Palette,
@@ -318,7 +335,18 @@ const ProfilePage = () => {
           <input
             type="number"
             value={state.dailyStats.targetCalories}
-            onChange={(e) => actions.updateDailyStats({ targetCalories: parseInt(e.target.value) })}
+            onChange={async (e) => {
+              const newTarget = parseInt(e.target.value);
+              actions.updateDailyStats({ targetCalories: newTarget });
+              
+              // Сохраняем в Supabase
+              if (state.supabaseUser) {
+                await actions.saveUserSettings({
+                  ...state.settings,
+                  dailyStats: { ...state.dailyStats, targetCalories: newTarget }
+                });
+              }
+            }}
             className="input"
           />
         </div>

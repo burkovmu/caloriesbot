@@ -166,6 +166,32 @@ export const useSupabase = () => {
     }
   }
 
+  // Обновить настройки пользователя
+  const updateUserSettings = async (userId, settings) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update({
+          settings: settings,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+      
+      if (error) throw error
+      
+      return { data: data?.[0], error: null }
+    } catch (err) {
+      setError(err.message)
+      return { error: err.message }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     loading,
     error,
@@ -174,6 +200,7 @@ export const useSupabase = () => {
     getFoodEntries,
     getUserStats,
     addAIRequest,
-    deleteFoodEntry
+    deleteFoodEntry,
+    updateUserSettings
   }
 } 
