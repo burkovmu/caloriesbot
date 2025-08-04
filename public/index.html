@@ -15,12 +15,49 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
-      // Отключаем уведомление о несохраненных изменениях
-      window.onbeforeunload = null;
-      window.addEventListener('beforeunload', function(e) {
-        // Просто игнорируем событие
-        return null;
-      }, true);
+      // Агрессивно отключаем уведомление о несохраненных изменениях
+      (function() {
+        // Отключаем все возможные обработчики
+        window.onbeforeunload = null;
+        window.onunload = null;
+        document.onbeforeunload = null;
+        document.onunload = null;
+        
+        // Перехватываем все попытки установить обработчики
+        const originalAddEventListener = window.addEventListener;
+        window.addEventListener = function(type, listener, options) {
+          if (type === 'beforeunload' || type === 'unload') {
+            return; // Игнорируем
+          }
+          return originalAddEventListener.call(this, type, listener, options);
+        };
+        
+        // Также перехватываем для document
+        const originalDocumentAddEventListener = document.addEventListener;
+        document.addEventListener = function(type, listener, options) {
+          if (type === 'beforeunload' || type === 'unload') {
+            return; // Игнорируем
+          }
+          return originalDocumentAddEventListener.call(this, type, listener, options);
+        };
+        
+        // Устанавливаем пустые обработчики
+        window.addEventListener('beforeunload', function(e) {
+          return null;
+        }, true);
+        
+        document.addEventListener('beforeunload', function(e) {
+          return null;
+        }, true);
+        
+        // Дополнительно отключаем через Object.defineProperty
+        try {
+          Object.defineProperty(window, 'onbeforeunload', {
+            get: function() { return null; },
+            set: function() { return null; }
+          });
+        } catch(e) {}
+      })();
     </script>
   </head>
   <body>

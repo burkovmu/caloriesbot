@@ -24,9 +24,6 @@ export const useTelegram = () => {
     
     // Отключаем уведомление о несохраненных изменениях
     window.onbeforeunload = null;
-    window.addEventListener('beforeunload', (e) => {
-      return null;
-    }, true);
     
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
