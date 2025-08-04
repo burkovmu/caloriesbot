@@ -41,6 +41,13 @@ const HomePage = () => {
     loadTodayData();
   }, [state.supabaseUser]);
 
+  // Обновляем данные при изменении dailyStats
+  useEffect(() => {
+    if (state.dailyStats.calories > 0) {
+      setLastUpdated(new Date());
+    }
+  }, [state.dailyStats]);
+
   const actionCards = [
     {
       icon: Plus,
@@ -162,8 +169,15 @@ const HomePage = () => {
                 fontSize: '1.5rem',
                 fontWeight: 'bold',
                 color: 'white',
-                marginBottom: '0.25rem'
+                marginBottom: '0.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
               }}>
+                {loading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : null}
                 {state.dailyStats.calories}
               </div>
               <div style={{

@@ -180,6 +180,11 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
               if (data) {
                 // console.log('AppContext: Supabase пользователь создан:', data);
                 actions.setSupabaseUser(data);
+                
+                // Синхронизируем данные из Supabase после создания пользователя
+                setTimeout(async () => {
+                  await actions.syncFromSupabase();
+                }, 1000);
               }
             } catch (err) {
               console.warn('Ошибка подключения к Supabase:', err.message);
@@ -210,6 +215,14 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
       actions.setError(supabaseError);
     }
   }, [supabaseError]);
+
+  // Синхронизируем данные при изменении supabaseUser
+  useEffect(() => {
+    if (state.supabaseUser) {
+      // Синхронизируем данные из Supabase
+      actions.syncFromSupabase();
+    }
+  }, [state.supabaseUser]);
 
   // Save state to localStorage on changes
   useEffect(() => {
