@@ -271,7 +271,7 @@ const AddFoodPage = () => {
             marginBottom: "0.5rem",
             textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
           }}>
-            Добавить прием пищи
+            Добавить еду
           </h1>
           
           {/* Subtitle */}

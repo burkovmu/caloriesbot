@@ -320,17 +320,59 @@ const StatsPage = () => {
       {/* Weekly Overview */}
       <section className="card">
         <h3 className="meals-title">Недельный обзор</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '0.75rem',
+          maxHeight: '300px',
+          overflowY: 'auto'
+        }}>
           {weeklyData.map((day) => (
-            <div key={day.day} style={{ textAlign: 'center', padding: '0.75rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                {day.day}
+            <div key={day.day} style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '0.75rem', 
+              background: '#f9fafb', 
+              borderRadius: '0.5rem',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: '2rem',
+                  height: '2rem',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: '0.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold'
+                }}>
+                  {day.day}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.125rem' }}>
+                    {day.day === 'Пн' ? 'Понедельник' : 
+                     day.day === 'Вт' ? 'Вторник' : 
+                     day.day === 'Ср' ? 'Среда' : 
+                     day.day === 'Чт' ? 'Четверг' : 
+                     day.day === 'Пт' ? 'Пятница' : 
+                     day.day === 'Сб' ? 'Суббота' : 'Воскресенье'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                    Белки: {day.protein}г | Жиры: {day.fat}г | Углеводы: {day.carbs}г
+                  </div>
+                </div>
               </div>
-              <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937' }}>
-                {day.calories}
-              </div>
-              <div style={{ fontSize: '0.625rem', color: '#9ca3af' }}>
-                ккал
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937' }}>
+                  {day.calories}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                  ккал
+                </div>
               </div>
             </div>
           ))}
