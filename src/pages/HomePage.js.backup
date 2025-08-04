@@ -179,6 +179,30 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Stats Cards */}
+      <section className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon flame">
+            <Flame className="w-6 h-6" />
+          </div>
+          <div className="stat-content">
+            <h3>{state.dailyStats.calories}</h3>
+            <p>Калории сегодня</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon target">
+            <Target className="w-6 h-6" />
+          </div>
+          <div className="stat-content">
+            <h3>{state.dailyStats.targetCalories}</h3>
+            <p>Цель калорий</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Actions */}
       <section>
         <h2 className="meals-title">Быстрые действия</h2>
         <div className="actions-grid">
