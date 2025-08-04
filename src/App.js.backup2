@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 
 // Components
 import BottomNavigation from './components/BottomNavigation';
-import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import AddFoodPage from './pages/AddFoodPage';
 import ProfilePage from './pages/ProfilePage';
@@ -29,7 +28,6 @@ function App() {
       <AppProvider>
         <div className="app-container">
           <div className="app-wrapper">
-            <ScrollToTop />
             <main className="main-content">
               <Routes>
                 <Route path="/" element={<HomePage />} />
