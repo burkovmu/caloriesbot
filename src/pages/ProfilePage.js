@@ -129,152 +129,64 @@ const ProfilePage = () => {
 
   return (
     <div>
-      {/* Beautiful Profile Header */}
-      <section style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: "1.5rem",
-        padding: "2rem",
-        marginBottom: "1.5rem",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: "0 10px 25px rgba(102, 126, 234, 0.3)"
-      }}>
-        {/* Background Pattern */}
-        <div style={{
-          position: "absolute",
-          top: "-50%",
-          right: "-20%",
-          width: "200px",
-          height: "200px",
-          background: "rgba(255, 255, 255, 0.1)",
-          borderRadius: "50%",
-          animation: "float 6s ease-in-out infinite"
-        }} />
-        <div style={{
-          position: "absolute",
-          bottom: "-30%",
-          left: "-10%",
-          width: "150px",
-          height: "150px",
-          background: "rgba(255, 255, 255, 0.05)",
-          borderRadius: "50%",
-          animation: "float 8s ease-in-out infinite reverse"
-        }} />
-        
-        {/* Content */}
-        <div style={{ position: "relative", zIndex: 2 }}>
-          {/* User Info */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
-            <div style={{
-              width: "4rem",
-              height: "4rem",
-              background: "rgba(255, 255, 255, 0.2)",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backdropFilter: "blur(10px)",
-              border: "2px solid rgba(255, 255, 255, 0.3)"
-            }}>
-              <User className="w-8 h-8 text-white" style={{ animation: "pulse 2s infinite" }} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <h1 style={{
-                fontSize: "1.75rem",
-                fontWeight: "bold",
-                color: "white",
-                marginBottom: "0.25rem",
-                textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
-              }}>
-                {state.user.name}
-              </h1>
-              <p style={{
-                color: "rgba(255, 255, 255, 0.9)",
-                fontSize: "1rem",
-                lineHeight: "1.5"
-              }}>
-                Пользователь CalorieTracker
-              </p>
-            </div>
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              style={{
-                padding: "0.75rem",
-                background: "rgba(255, 255, 255, 0.2)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "0.75rem",
-                color: "white",
-                cursor: "pointer",
-                backdropFilter: "blur(10px)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = "rgba(255, 255, 255, 0.3)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "rgba(255, 255, 255, 0.2)";
-              }}
-            >
-              <Edit className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Personal Stats */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: "1rem",
-            background: "rgba(255, 255, 255, 0.15)",
-            borderRadius: "1rem",
-            padding: "1.5rem",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.2)"
+      {/* Profile Header */}
+      <section className="card">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ 
+            width: '4rem', 
+            height: '4rem', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '1.5rem'
           }}>
-            {[
-              { icon: Calendar, label: 'Дней', value: '7', color: 'rgba(255, 255, 255, 0.9)' },
-              { icon: Trophy, label: 'Цель', value: state.user.targetWeight + 'кг', color: 'rgba(255, 255, 255, 0.9)' },
-              { icon: Scale, label: 'Текущий', value: state.user.weight + 'кг', color: 'rgba(255, 255, 255, 0.9)' }
-            ].map((stat) => (
-              <div key={stat.label} style={{
-                textAlign: "center",
-                padding: "1rem",
-                background: "rgba(255, 255, 255, 0.1)",
-                borderRadius: "0.75rem",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = "rgba(255, 255, 255, 0.2)";
-                e.target.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "rgba(255, 255, 255, 0.1)";
-                e.target.style.transform = "translateY(0)";
-              }}
-              >
-                <div style={{ color: stat.color, marginBottom: "0.5rem" }}>
-                  <stat.icon className="w-6 h-6 mx-auto" />
-                </div>
-                <div style={{
-                  fontSize: "1.25rem",
-                  fontWeight: "bold",
-                  color: "white",
-                  marginBottom: "0.25rem",
-                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)"
-                }}>
-                  {stat.value}
-                </div>
-                <div style={{
-                  fontSize: "0.875rem",
-                  color: "rgba(255, 255, 255, 0.8)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px"
-                }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+            <User className="w-8 h-8" />
           </div>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
+              {state.user.name}
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+              Пользователь CalorieTracker
+            </p>
+          </div>
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            style={{
+              padding: '0.5rem',
+              background: '#f3f4f6',
+              border: 'none',
+              borderRadius: '0.5rem',
+              color: '#6b7280',
+              cursor: 'pointer'
+            }}
+          >
+            <Edit className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Personal Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+          {[
+            { icon: Calendar, label: 'Дней', value: '7', color: '#3b82f6' },
+            { icon: Trophy, label: 'Цель', value: state.user.targetWeight + 'кг', color: '#10b981' },
+            { icon: Scale, label: 'Текущий', value: state.user.weight + 'кг', color: '#f59e0b' }
+          ].map((stat) => (
+            <div key={stat.label} style={{ textAlign: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
+              <div style={{ color: stat.color, marginBottom: '0.5rem' }}>
+                <stat.icon className="w-6 h-6 mx-auto" />
+              </div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937' }}>
+                {stat.value}
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                {stat.label}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
