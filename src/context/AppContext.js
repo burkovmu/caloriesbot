@@ -104,7 +104,49 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
     setSettings: (settings) => dispatch({ type: 'SET_SETTINGS', payload: settings }),
     resetDailyStats: () => dispatch({ type: 'RESET_DAILY_STATS' }),
     setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
-    setError: (error) => dispatch({ type: 'SET_ERROR', payload: error })
+    setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
+    syncFromSupabase: async () => {
+      if (!state.supabaseUser) return;
+      
+      try {
+        actions.setLoading(true);
+        
+        // Получаем данные за сегодня
+        const today = new Date().toISOString().split('T')[0];
+        const { data, error } = await getFoodEntries(state.supabaseUser.id, today);
+        
+        if (error) {
+          console.warn('Ошибка синхронизации:', error);
+          return;
+        }
+        
+        // Вычисляем общую статистику
+        const totalCalories = data.reduce((sum, item) => sum + (parseInt(item.calories) || 0), 0);
+        const totalProtein = data.reduce((sum, item) => sum + (parseFloat(item.proteins) || 0), 0);
+        const totalFat = data.reduce((sum, item) => sum + (parseFloat(item.fats) || 0), 0);
+        const totalCarbs = data.reduce((sum, item) => sum + (parseFloat(item.carbs) || 0), 0);
+        
+        // Обновляем локальное состояние
+        actions.updateDailyStats({
+          calories: totalCalories,
+          protein: totalProtein,
+          fat: totalFat,
+          carbs: totalCarbs
+        });
+        
+        console.log('✅ Данные синхронизированы из Supabase:', {
+          calories: totalCalories,
+          protein: totalProtein,
+          fat: totalFat,
+          carbs: totalCarbs
+        });
+        
+      } catch (err) {
+        console.error('Ошибка синхронизации:', err);
+      } finally {
+        actions.setLoading(false);
+      }
+    }
   };
 
   // Инициализация пользователя Supabase при загрузке

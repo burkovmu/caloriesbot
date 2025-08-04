@@ -26,22 +26,9 @@ const HomePage = () => {
 
     setLoading(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabaseActions.getFoodEntries(state.supabaseUser.id, today);
-      
-      if (error) {
-        console.warn('Ошибка загрузки данных:', error);
-      } else {
-        // Обновляем статистику на основе данных из Supabase
-        const totalCalories = data.reduce((sum, item) => sum + (item.calories || 0), 0);
-        const totalProteins = data.reduce((sum, item) => sum + (parseFloat(item.proteins) || 0), 0);
-        const totalFats = data.reduce((sum, item) => sum + (parseFloat(item.fats) || 0), 0);
-        const totalCarbs = data.reduce((sum, item) => sum + (parseFloat(item.carbs) || 0), 0);
-        
-        // Обновляем состояние (если есть функция для этого)
-        console.log('Загружены данные за сегодня:', { totalCalories, totalProteins, totalFats, totalCarbs });
-        setLastUpdated(new Date());
-      }
+      // Синхронизируем данные из Supabase с локальным состоянием
+      await actions.syncFromSupabase();
+      setLastUpdated(new Date());
     } catch (err) {
       console.error('Ошибка загрузки данных:', err);
     } finally {

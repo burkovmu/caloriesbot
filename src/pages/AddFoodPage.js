@@ -89,6 +89,8 @@ const AddFoodPage = () => {
           showAlert('Сохранено локально, но ошибка в базе данных');
         } else {
           showAlert('Прием пищи сохранен в базе данных!');
+          // Синхронизируем данные после сохранения
+          await actions.syncFromSupabase();
         }
               } else {
           try {
@@ -161,6 +163,8 @@ const AddFoodPage = () => {
         } else {
           try {
             showAlert('Продукт добавлен в базу данных!');
+            // Синхронизируем данные после сохранения
+            await actions.syncFromSupabase();
           } catch (error) {
             console.log('Продукт добавлен в базу данных!');
           }

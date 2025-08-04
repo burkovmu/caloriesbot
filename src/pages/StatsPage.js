@@ -22,6 +22,9 @@ const StatsPage = () => {
 
     setLoading(true);
     try {
+      // Синхронизируем данные из Supabase с локальным состоянием
+      await actions.syncFromSupabase();
+      
       // Получаем статистику за последние 7 дней
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
