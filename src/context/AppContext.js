@@ -216,9 +216,10 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
                 }
                 
                 // Загружаем личные данные пользователя
-                if (data.age !== undefined || data.height !== undefined || data.weight !== undefined) {
+                if (data.age !== undefined || data.height !== undefined || data.weight !== undefined || data.name) {
                   const userData = {
                     ...state.user,
+                    name: data.name || telegramUser.first_name || telegramUser.username || 'Пользователь',
                     age: data.age || 0,
                     height: data.height || 0,
                     weight: data.weight || 0,

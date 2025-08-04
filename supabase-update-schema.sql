@@ -15,6 +15,10 @@ ADD COLUMN IF NOT EXISTS target_fat INTEGER DEFAULT 65;
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS target_carbs INTEGER DEFAULT 250;
 
+-- Добавляем колонку для отображаемого имени
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS name TEXT DEFAULT 'Пользователь';
+
 -- Добавляем колонки для личных данных пользователя
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS age INTEGER DEFAULT 0;

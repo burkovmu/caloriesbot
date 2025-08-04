@@ -22,6 +22,7 @@ export const useSupabase = () => {
         // Добавляем дефолтные настройки, если их нет
         const userWithDefaults = {
           ...existingUser,
+          name: existingUser.name || 'Пользователь',
           settings: existingUser.settings || {},
           target_calories: existingUser.target_calories || 2000,
           target_protein: existingUser.target_protein || 150,
@@ -40,7 +41,8 @@ export const useSupabase = () => {
         telegram_id: telegramUser.id,
         username: telegramUser.username,
         first_name: telegramUser.first_name,
-        last_name: telegramUser.last_name
+        last_name: telegramUser.last_name,
+        name: telegramUser.first_name || telegramUser.username || 'Пользователь'
       }
       
       const { data, error } = await supabaseHelpers.upsertUser(newUser)
@@ -205,6 +207,7 @@ export const useSupabase = () => {
         updateData.height = settings.user.height || 0
         updateData.weight = settings.user.weight || 0
         updateData.target_weight = settings.user.targetWeight || 0
+        updateData.name = settings.user.name || 'Пользователь'
       }
       
       const { data, error } = await supabase
