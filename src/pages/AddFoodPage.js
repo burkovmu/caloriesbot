@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brain, Save, Edit, Sun, CloudSun, Moon, Cookie, Plus, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
@@ -14,6 +14,30 @@ const AddFoodPage = () => {
   const [analysisResults, setAnalysisResults] = useState(null);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [selectedQuickFood, setSelectedQuickFood] = useState(null);
+
+  // Функция для очистки формы
+  const resetForm = () => {
+    setFoodDescription('');
+    setWeight('');
+    setPortions(1);
+    setAnalysisResults(null);
+    setSelectedQuickFood(null);
+    setShowQuickAdd(false);
+  };
+
+  // Очищаем форму при уходе со страницы
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      resetForm();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      resetForm();
+    };
+  }, []);
 
   const mealTypes = [
     { id: 'breakfast', label: 'Завтрак', icon: Sun },
@@ -101,10 +125,7 @@ const AddFoodPage = () => {
         }
       
       // Reset form
-      setFoodDescription('');
-      setWeight('');
-      setPortions(1);
-      setAnalysisResults(null);
+      resetForm();
     } catch (err) {
       console.error('Ошибка сохранения:', err);
       try {
@@ -177,10 +198,7 @@ const AddFoodPage = () => {
           }
         }
       
-      setShowQuickAdd(false);
-      setSelectedQuickFood(null);
-      setWeight('');
-      setPortions(1);
+      resetForm();
     } catch (err) {
       console.error('Ошибка сохранения:', err);
       try {

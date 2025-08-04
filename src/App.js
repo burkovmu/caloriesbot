@@ -24,6 +24,22 @@ function App() {
     initTelegram();
   }, [initTelegram]);
 
+  // Предотвращаем уведомление о несохраненных изменениях при закрытии
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // Отменяем стандартное поведение браузера
+      e.preventDefault();
+      // Очищаем сообщение (некоторые браузеры все равно покажут свое сообщение)
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   return (
     <ThemeProvider>
       <AppProvider telegramUser={telegramUser}>
