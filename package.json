@@ -2,6 +2,7 @@
   "name": "tg-mini-app",
   "version": "1.0.0",
   "description": "Telegram Mini App",
+  "homepage": ".",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
