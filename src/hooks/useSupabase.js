@@ -26,7 +26,11 @@ export const useSupabase = () => {
           target_calories: existingUser.target_calories || 2000,
           target_protein: existingUser.target_protein || 150,
           target_fat: existingUser.target_fat || 65,
-          target_carbs: existingUser.target_carbs || 250
+          target_carbs: existingUser.target_carbs || 250,
+          age: existingUser.age || 0,
+          height: existingUser.height || 0,
+          weight: existingUser.weight || 0,
+          target_weight: existingUser.target_weight || 0
         }
         return { data: userWithDefaults, error: null }
       }
@@ -193,6 +197,14 @@ export const useSupabase = () => {
         updateData.target_protein = settings.dailyStats.targetProtein || 150
         updateData.target_fat = settings.dailyStats.targetFat || 65
         updateData.target_carbs = settings.dailyStats.targetCarbs || 250
+      }
+      
+      // Если есть личные данные пользователя, добавляем их
+      if (settings.user) {
+        updateData.age = settings.user.age || 0
+        updateData.height = settings.user.height || 0
+        updateData.weight = settings.user.weight || 0
+        updateData.target_weight = settings.user.targetWeight || 0
       }
       
       const { data, error } = await supabase

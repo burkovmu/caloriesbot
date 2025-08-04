@@ -15,6 +15,19 @@ ADD COLUMN IF NOT EXISTS target_fat INTEGER DEFAULT 65;
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS target_carbs INTEGER DEFAULT 250;
 
+-- Добавляем колонки для личных данных пользователя
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS age INTEGER DEFAULT 0;
+
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS height INTEGER DEFAULT 0;
+
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS weight DECIMAL(5,2) DEFAULT 0;
+
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS target_weight DECIMAL(5,2) DEFAULT 0;
+
 -- Обновляем существующие записи с дефолтными значениями
 UPDATE users 
 SET settings = '{}' 
@@ -34,4 +47,20 @@ WHERE target_fat IS NULL;
 
 UPDATE users 
 SET target_carbs = 250 
-WHERE target_carbs IS NULL; 
+WHERE target_carbs IS NULL;
+
+UPDATE users 
+SET age = 0 
+WHERE age IS NULL;
+
+UPDATE users 
+SET height = 0 
+WHERE height IS NULL;
+
+UPDATE users 
+SET weight = 0 
+WHERE weight IS NULL;
+
+UPDATE users 
+SET target_weight = 0 
+WHERE target_weight IS NULL; 

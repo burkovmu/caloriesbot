@@ -215,6 +215,18 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
                   });
                 }
                 
+                // Загружаем личные данные пользователя
+                if (data.age !== undefined || data.height !== undefined || data.weight !== undefined) {
+                  const userData = {
+                    ...state.user,
+                    age: data.age || 0,
+                    height: data.height || 0,
+                    weight: data.weight || 0,
+                    targetWeight: data.target_weight || 0
+                  };
+                  actions.setUser(userData);
+                }
+                
                 // Синхронизируем данные из Supabase после создания пользователя
                 setTimeout(async () => {
                   await actions.syncFromSupabase();

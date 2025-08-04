@@ -230,7 +230,10 @@ const ProfilePage = () => {
                 <input
                   type="number"
                   value={editData.age || ''}
-                  onChange={(e) => setEditData({ ...editData, age: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const newAge = parseInt(e.target.value);
+                    setEditData({ ...editData, age: newAge });
+                  }}
                   className="input"
                 />
               </div>
@@ -239,7 +242,10 @@ const ProfilePage = () => {
                 <input
                   type="number"
                   value={editData.height || ''}
-                  onChange={(e) => setEditData({ ...editData, height: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const newHeight = parseInt(e.target.value);
+                    setEditData({ ...editData, height: newHeight });
+                  }}
                   className="input"
                 />
               </div>
@@ -251,7 +257,10 @@ const ProfilePage = () => {
                 <input
                   type="number"
                   value={editData.weight || ''}
-                  onChange={(e) => setEditData({ ...editData, weight: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const newWeight = parseInt(e.target.value);
+                    setEditData({ ...editData, weight: newWeight });
+                  }}
                   className="input"
                 />
               </div>
@@ -260,7 +269,10 @@ const ProfilePage = () => {
                 <input
                   type="number"
                   value={editData.targetWeight || ''}
-                  onChange={(e) => setEditData({ ...editData, targetWeight: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const newTargetWeight = parseInt(e.target.value);
+                    setEditData({ ...editData, targetWeight: newTargetWeight });
+                  }}
                   className="input"
                 />
               </div>
