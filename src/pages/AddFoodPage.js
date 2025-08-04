@@ -25,16 +25,9 @@ const AddFoodPage = () => {
     setShowQuickAdd(false);
   };
 
-  // Очищаем форму при уходе со страницы
+  // Очищаем форму при размонтировании компонента
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      resetForm();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
       resetForm();
     };
   }, []);

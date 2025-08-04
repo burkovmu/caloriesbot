@@ -26,17 +26,29 @@ function App() {
 
   // Предотвращаем уведомление о несохраненных изменениях при закрытии
   useEffect(() => {
+    // Отключаем уведомление через прямое присваивание
+    window.onbeforeunload = null;
+    
     const handleBeforeUnload = (e) => {
-      // Отменяем стандартное поведение браузера
+      // Полностью отключаем уведомление
       e.preventDefault();
-      // Очищаем сообщение (некоторые браузеры все равно покажут свое сообщение)
-      e.returnValue = '';
+      e.stopPropagation();
+      e.returnValue = undefined;
+      return undefined;
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    const handleUnload = (e) => {
+      // Дополнительная защита
+      e.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload, { capture: true });
+    window.addEventListener('unload', handleUnload, { capture: true });
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload, { capture: true });
+      window.removeEventListener('unload', handleUnload, { capture: true });
+      window.onbeforeunload = null;
     };
   }, []);
 
