@@ -3,6 +3,20 @@ import { useCallback, useState, useEffect } from 'react';
 export const useTelegram = () => {
   const [telegramUser, setTelegramUser] = useState(null);
 
+  // Функция для получения пользователя из URL параметров
+  const getUserFromURL = () => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userParam = urlParams.get('user');
+      if (userParam) {
+        return JSON.parse(decodeURIComponent(userParam));
+      }
+    } catch (error) {
+      console.warn('Ошибка парсинга пользователя из URL:', error);
+    }
+    return null;
+  };
+
   const initTelegram = useCallback(() => {
     console.log('Инициализация Telegram...');
     console.log('window.Telegram:', window.Telegram);
@@ -28,16 +42,74 @@ export const useTelegram = () => {
         console.log('Устанавливаем пользователя Telegram:', user);
         setTelegramUser(user);
       } else {
-        // Fallback for development - create mock user
-        const mockUser = {
-          id: 123456789,
-          first_name: 'Тестовый',
-          last_name: 'Пользователь',
-          username: 'test_user',
-          language_code: 'ru'
-        };
-        console.log('Устанавливаем тестового пользователя:', mockUser);
-        setTelegramUser(mockUser);
+        // Try to get user from initData
+        const initData = tg.initData;
+        if (initData) {
+          try {
+            // Parse initData to get user
+            const urlParams = new URLSearchParams(initData);
+            const userParam = urlParams.get('user');
+            if (userParam) {
+              const parsedUser = JSON.parse(decodeURIComponent(userParam));
+              console.log('Пользователь из initData:', parsedUser);
+              setTelegramUser(parsedUser);
+            } else {
+              // Try to get from URL parameters
+              const urlUser = getUserFromURL();
+              if (urlUser) {
+                console.log('Пользователь из URL:', urlUser);
+                setTelegramUser(urlUser);
+              } else {
+                // Fallback for development
+                const mockUser = {
+                  id: 123456789,
+                  first_name: 'Тестовый',
+                  last_name: 'Пользователь',
+                  username: 'test_user',
+                  language_code: 'ru'
+                };
+                console.log('Устанавливаем тестового пользователя:', mockUser);
+                setTelegramUser(mockUser);
+              }
+            }
+          } catch (error) {
+            console.warn('Ошибка парсинга initData:', error);
+            // Try to get from URL parameters
+            const urlUser = getUserFromURL();
+            if (urlUser) {
+              console.log('Пользователь из URL:', urlUser);
+              setTelegramUser(urlUser);
+            } else {
+              // Fallback for development
+              const mockUser = {
+                id: 123456789,
+                first_name: 'Тестовый',
+                last_name: 'Пользователь',
+                username: 'test_user',
+                language_code: 'ru'
+              };
+              setTelegramUser(mockUser);
+            }
+          }
+        } else {
+          // Try to get from URL parameters
+          const urlUser = getUserFromURL();
+          if (urlUser) {
+            console.log('Пользователь из URL:', urlUser);
+            setTelegramUser(urlUser);
+          } else {
+            // Fallback for development
+            const mockUser = {
+              id: 123456789,
+              first_name: 'Тестовый',
+              last_name: 'Пользователь',
+              username: 'test_user',
+              language_code: 'ru'
+            };
+            console.log('Устанавливаем тестового пользователя:', mockUser);
+            setTelegramUser(mockUser);
+          }
+        }
       }
       
       // Set the main button if needed

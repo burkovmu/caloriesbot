@@ -5,12 +5,19 @@ const SupabaseTest = () => {
   const { state, supabaseActions, telegramUser } = useApp();
   const [testResult, setTestResult] = useState('');
 
-  // useEffect(() => {
-  //   console.log('SupabaseTest: Обновление данных');
-  //   console.log('state.user:', state.user);
-  //   console.log('state.supabaseUser:', state.supabaseUser);
-  //   console.log('telegramUser:', telegramUser);
-  // }, [state.user, state.supabaseUser, telegramUser]);
+  useEffect(() => {
+    console.log('SupabaseTest: Обновление данных');
+    console.log('state.user:', state.user);
+    console.log('state.supabaseUser:', state.supabaseUser);
+    console.log('telegramUser:', telegramUser);
+    
+    // Проверяем, является ли это реальным пользователем Telegram
+    if (telegramUser && telegramUser.id !== 123456789) {
+      console.log('✅ Это реальный пользователь Telegram:', telegramUser);
+    } else {
+      console.log('❌ Это тестовый пользователь');
+    }
+  }, [state.user, state.supabaseUser, telegramUser]);
 
   const testConnection = async () => {
     try {
@@ -59,6 +66,7 @@ const SupabaseTest = () => {
         <p><strong>Telegram ID:</strong> {state.user?.telegramId || 'Не загружен'}</p>
         <p><strong>Supabase User ID:</strong> {state.supabaseUser?.id || 'Не загружен'}</p>
         <p><strong>Telegram User:</strong> {telegramUser ? `${telegramUser.first_name} (${telegramUser.id})` : 'Не загружен'}</p>
+        <p><strong>Реальный пользователь:</strong> {telegramUser && telegramUser.id !== 123456789 ? '✅ Да' : '❌ Нет (тестовый)'}</p>
         <p><strong>Загрузка:</strong> {state.loading ? 'Да' : 'Нет'}</p>
         {state.error && <p className="text-red-500"><strong>Ошибка:</strong> {state.error}</p>}
       </div>
