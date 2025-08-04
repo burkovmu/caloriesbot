@@ -205,6 +205,16 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
                   actions.setSettings(data.settings);
                 }
                 
+                // Загружаем цели пользователя
+                if (data.target_calories) {
+                  actions.updateDailyStats({
+                    targetCalories: data.target_calories,
+                    targetProtein: data.target_protein || 150,
+                    targetFat: data.target_fat || 65,
+                    targetCarbs: data.target_carbs || 250
+                  });
+                }
+                
                 // Синхронизируем данные из Supabase после создания пользователя
                 setTimeout(async () => {
                   await actions.syncFromSupabase();

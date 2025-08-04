@@ -19,7 +19,16 @@ export const useSupabase = () => {
       }
       
       if (existingUser) {
-        return { data: existingUser, error: null }
+        // Добавляем дефолтные настройки, если их нет
+        const userWithDefaults = {
+          ...existingUser,
+          settings: existingUser.settings || {},
+          target_calories: existingUser.target_calories || 2000,
+          target_protein: existingUser.target_protein || 150,
+          target_fat: existingUser.target_fat || 65,
+          target_carbs: existingUser.target_carbs || 250
+        }
+        return { data: userWithDefaults, error: null }
       }
       
       // Создаем нового пользователя
@@ -172,12 +181,23 @@ export const useSupabase = () => {
     setError(null)
     
     try {
+      // Подготавливаем данные для обновления
+      const updateData = {
+        settings: settings,
+        updated_at: new Date().toISOString()
+      }
+      
+      // Если есть данные о целях, добавляем их
+      if (settings.dailyStats) {
+        updateData.target_calories = settings.dailyStats.targetCalories || 2000
+        updateData.target_protein = settings.dailyStats.targetProtein || 150
+        updateData.target_fat = settings.dailyStats.targetFat || 65
+        updateData.target_carbs = settings.dailyStats.targetCarbs || 250
+      }
+      
       const { data, error } = await supabase
         .from('users')
-        .update({
-          settings: settings,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', userId)
         .select()
       
