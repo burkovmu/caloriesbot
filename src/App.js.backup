@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // Components
+import Header from './components/Header';
 import BottomNavigation from './components/BottomNavigation';
 import HomePage from './pages/HomePage';
 import AddFoodPage from './pages/AddFoodPage';
@@ -28,6 +29,8 @@ function App() {
       <AppProvider>
         <div className="app-container">
           <div className="app-wrapper">
+            <Header />
+            
             <main className="main-content">
               <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -46,4 +49,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 
