@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalorieTracker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>CalorieTracker</span>
+                </div>
+                <div class="user-info">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-card">
+                    <div class="welcome-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h1>Добро пожаловать!</h1>
+                    <p>Начните свой путь к здоровому питанию с нашим трекером калорий</p>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>0</h3>
+                            <p>Калории сегодня</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-target"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>2000</h3>
+                            <p>Цель калорий</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="actions-section">
+                <h2>Быстрые действия</h2>
+                <div class="actions-grid">
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <h3>Добавить еду</h3>
+                        <p>Записать прием пищи</p>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Статистика</h3>
+                        <p>Посмотреть прогресс</p>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h3>Настройки</h3>
+                        <p>Персонализация</p>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>База данных</h3>
+                        <p>Поиск продуктов</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section">
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>Прогресс дня</h3>
+                        <span class="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span>0 / 2000 ккал</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Today's Meals -->
+            <section class="meals-section">
+                <h3>Сегодняшние приемы пищи</h3>
+                <div class="meals-list">
+                    <div class="meal-item">
+                        <div class="meal-time">
+                            <i class="fas fa-sun"></i>
+                            <span>Завтрак</span>
+                        </div>
+                        <div class="meal-content">
+                            <p>Пока нет записей</p>
+                        </div>
+                        <div class="meal-calories">
+                            <span>0 ккал</span>
+                        </div>
+                    </div>
+                    <div class="meal-item">
+                        <div class="meal-time">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Обед</span>
+                        </div>
+                        <div class="meal-content">
+                            <p>Пока нет записей</p>
+                        </div>
+                        <div class="meal-calories">
+                            <span>0 ккал</span>
+                        </div>
+                    </div>
+                    <div class="meal-item">
+                        <div class="meal-time">
+                            <i class="fas fa-moon"></i>
+                            <span>Ужин</span>
+                        </div>
+                        <div class="meal-content">
+                            <p>Пока нет записей</p>
+                        </div>
+                        <div class="meal-calories">
+                            <span>0 ккал</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Add Food Section (Hidden by default) -->
+        <main class="add-food-content" style="display: none;">
+            <!-- Add Food Header -->
+            <section class="add-food-header">
+                <div class="add-food-card">
+                    <h2>Добавить прием пищи</h2>
+                    <p>Опишите что вы съели, и ИИ проанализирует калории и БЖУ</p>
+                </div>
+            </section>
+
+            <!-- Food Input Section -->
+            <section class="food-input-section">
+                <div class="input-card">
+                    <div class="meal-type-selector">
+                        <h3>Выберите прием пищи</h3>
+                        <div class="meal-buttons">
+                            <button class="meal-btn active" data-meal="breakfast">
+                                <i class="fas fa-sun"></i>
+                                Завтрак
+                            </button>
+                            <button class="meal-btn" data-meal="lunch">
+                                <i class="fas fa-cloud-sun"></i>
+                                Обед
+                            </button>
+                            <button class="meal-btn" data-meal="dinner">
+                                <i class="fas fa-moon"></i>
+                                Ужин
+                            </button>
+                            <button class="meal-btn" data-meal="snack">
+                                <i class="fas fa-cookie-bite"></i>
+                                Перекус
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="food-description">
+                        <h3>Опишите что вы съели</h3>
+                        <textarea 
+                            id="foodDescription" 
+                            placeholder="Например: куриная грудка 200г, рис 100г, овощной салат с помидорами и огурцами..."
+                            rows="4"
+                        ></textarea>
+                    </div>
+
+                    <div class="portion-estimation">
+                        <h3>Примерные порции (если знаете)</h3>
+                        <div class="portion-inputs">
+                            <div class="portion-input">
+                                <label>Вес блюда (г)</label>
+                                <input type="number" placeholder="300" min="0">
+                            </div>
+                            <div class="portion-input">
+                                <label>Количество порций</label>
+                                <input type="number" placeholder="1" min="1" value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-primary" id="analyzeFood">
+                            <i class="fas fa-brain"></i>
+                            Анализировать с ИИ
+                        </button>
+                        <button class="btn-secondary" id="quickAdd">
+                            <i class="fas fa-plus"></i>
+                            Быстрое добавление
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Results (Hidden by default) -->
+            <section class="analysis-results" style="display: none;">
+                <div class="results-card">
+                    <div class="results-header">
+                        <h3>Результаты анализа</h3>
+                        <div class="ai-badge">
+                            <i class="fas fa-robot"></i>
+                            ИИ анализ
+                        </div>
+                    </div>
+
+                    <div class="nutrition-info">
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="nutrition-content">
+                                <h4>Калории</h4>
+                                <span class="nutrition-value">0 ккал</span>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">
+                                <i class="fas fa-dumbbell"></i>
+                            </div>
+                            <div class="nutrition-content">
+                                <h4>Белки</h4>
+                                <span class="nutrition-value">0г</span>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">
+                                <i class="fas fa-oil-can"></i>
+                            </div>
+                            <div class="nutrition-content">
+                                <h4>Жиры</h4>
+                                <span class="nutrition-value">0г</span>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">
+                                <i class="fas fa-bread-slice"></i>
+                            </div>
+                            <div class="nutrition-content">
+                                <h4>Углеводы</h4>
+                                <span class="nutrition-value">0г</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-recommendations">
+                        <h4>Рекомендации ИИ</h4>
+                        <div class="recommendation-text">
+                            <p>Опишите что вы съели, чтобы получить персональные рекомендации</p>
+                        </div>
+                    </div>
+
+                    <div class="results-actions">
+                        <button class="btn-primary" id="saveMeal">
+                            <i class="fas fa-save"></i>
+                            Сохранить прием пищи
+                        </button>
+                        <button class="btn-secondary" id="editAnalysis">
+                            <i class="fas fa-edit"></i>
+                            Редактировать
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Profile Section (Hidden by default) -->
+        <main class="profile-content" style="display: none;">
+            <!-- Profile Header -->
+            <section class="profile-header">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2>Пользователь</h2>
+                        <p>Активный пользователь</p>
+                    </div>
+                    <div class="profile-edit">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personal Stats -->
+            <section class="personal-stats">
+                <h3>Персональная статистика</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>7</h3>
+                            <p>Дней подряд</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>85%</h3>
+                            <p>Средняя точность</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-weight"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>70 кг</h3>
+                            <p>Текущий вес</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>65 кг</h3>
+                            <p>Целевой вес</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personal Data Section -->
+            <section class="personal-data-section">
+                <h3>Персональные данные</h3>
+                <div class="data-form">
+                    <div class="form-group">
+                        <label>Рост (см)</label>
+                        <input type="number" placeholder="175" min="100" max="250">
+                    </div>
+                    <div class="form-group">
+                        <label>Вес (кг)</label>
+                        <input type="number" placeholder="70" min="30" max="300">
+                    </div>
+                    <div class="form-group">
+                        <label>Возраст</label>
+                        <input type="number" placeholder="25" min="10" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>Пол</label>
+                        <select>
+                            <option value="">Выберите пол</option>
+                            <option value="male">Мужской</option>
+                            <option value="female">Женский</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Уровень активности</label>
+                        <select>
+                            <option value="">Выберите уровень</option>
+                            <option value="sedentary">Сидячий образ жизни</option>
+                            <option value="light">Легкая активность</option>
+                            <option value="moderate">Умеренная активность</option>
+                            <option value="active">Высокая активность</option>
+                            <option value="very-active">Очень высокая активность</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Цель</label>
+                        <select>
+                            <option value="">Выберите цель</option>
+                            <option value="lose">Похудение</option>
+                            <option value="maintain">Поддержание веса</option>
+                            <option value="gain">Набор массы</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Целевой вес (кг)</label>
+                        <input type="number" placeholder="65" min="30" max="300">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section class="preferences-section">
+                <h3>Предпочтения в питании</h3>
+                <div class="preferences-form">
+                    <div class="form-group">
+                        <label>Любимые продукты</label>
+                        <textarea placeholder="Например: курица, рис, овощи, фрукты..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Нелюбимые продукты</label>
+                        <textarea placeholder="Например: рыба, грибы, острые блюда..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Аллергии и ограничения</label>
+                        <textarea placeholder="Например: аллергия на орехи, непереносимость лактозы..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Диетические предпочтения</label>
+                        <select>
+                            <option value="">Нет ограничений</option>
+                            <option value="vegetarian">Вегетарианство</option>
+                            <option value="vegan">Веганство</option>
+                            <option value="gluten-free">Безглютеновая диета</option>
+                            <option value="keto">Кетогенная диета</option>
+                            <option value="paleo">Палео диета</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="settings-section">
+                <h3>Настройки</h3>
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div class="setting-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="setting-content">
+                            <h4>Редактировать профиль</h4>
+                            <p>Изменить личную информацию</p>
+                        </div>
+                        <div class="setting-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-icon">
+                            <i class="fas fa-target"></i>
+                        </div>
+                        <div class="setting-content">
+                            <h4>Цели и настройки</h4>
+                            <p>Установить цели по калориям</p>
+                        </div>
+                        <div class="setting-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="setting-content">
+                            <h4>Уведомления</h4>
+                            <p>Настройка напоминаний</p>
+                        </div>
+                        <div class="setting-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="setting-content">
+                            <h4>Внешний вид</h4>
+                            <p>Настройка темы приложения</p>
+                        </div>
+                        <div class="setting-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="setting-content">
+                            <h4>Приватность</h4>
+                            <p>Настройки конфиденциальности</p>
+                        </div>
+                        <div class="setting-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="setting-content">
+                            <h4>Помощь и поддержка</h4>
+                            <p>FAQ и контакты</p>
+                        </div>
+                        <div class="setting-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Account Actions -->
+            <section class="account-actions">
+                <div class="action-buttons">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Экспорт данных
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-upload"></i>
+                        Импорт данных
+                    </button>
+                </div>
+                
+                <div class="danger-zone">
+                    <h4>Опасная зона</h4>
+                    <button class="btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Удалить аккаунт
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-page="home">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </div>
+            <div class="nav-item" data-page="add">
+                <i class="fas fa-plus-circle"></i>
+                <span>Добавить</span>
+            </div>
+            <div class="nav-item" data-page="stats">
+                <i class="fas fa-chart-bar"></i>
+                <span>Статистика</span>
+            </div>
+            <div class="nav-item" data-page="profile">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </div>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
