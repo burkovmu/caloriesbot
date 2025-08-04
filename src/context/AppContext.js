@@ -1,24 +1,12 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useSupabase } from '../hooks/useSupabase';
+import { useTelegram } from '../hooks/useTelegram';
 
 const AppContext = createContext();
 
 const initialState = {
-  user: {
-    name: 'Пользователь',
-    age: 25,
-    height: 175,
-    weight: 70,
-    gender: 'male',
-    activityLevel: 'moderate',
-    goal: 'maintain',
-    targetWeight: 65,
-    preferences: {
-      favoriteFoods: '',
-      dislikedFoods: '',
-      allergies: '',
-      dietaryRestrictions: ''
-    }
-  },
+  user: null,
+  supabaseUser: null,
   dailyStats: {
     calories: 0,
     protein: 0,
@@ -35,7 +23,9 @@ const initialState = {
     notifications: true,
     darkMode: false,
     language: 'ru'
-  }
+  },
+  loading: false,
+  error: null
 };
 
 const appReducer = (state, action) => {
@@ -43,7 +33,12 @@ const appReducer = (state, action) => {
     case 'SET_USER':
       return {
         ...state,
-        user: { ...state.user, ...action.payload }
+        user: action.payload
+      };
+    case 'SET_SUPABASE_USER':
+      return {
+        ...state,
+        supabaseUser: action.payload
       };
     case 'ADD_MEAL':
       return {
@@ -78,35 +73,101 @@ const appReducer = (state, action) => {
           carbs: 0
         }
       };
+    case 'SET_LOADING':
+      return {
+        ...state,
+        loading: action.payload
+      };
+    case 'SET_ERROR':
+      return {
+        ...state,
+        error: action.payload
+      };
     default:
       return state;
   }
 };
 
-export const AppProvider = ({ children }) => {
+export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const { getUserOrCreate, addFoodEntry, getFoodEntries, getUserStats, addAIRequest, deleteFoodEntry, loading: supabaseLoading, error: supabaseError } = useSupabase();
+  const { telegramUser: hookTelegramUser } = useTelegram();
+  
+  // Используем telegramUser из пропов или из хука
+  const telegramUser = propTelegramUser || hookTelegramUser;
 
   const actions = {
     setUser: (userData) => dispatch({ type: 'SET_USER', payload: userData }),
+    setSupabaseUser: (userData) => dispatch({ type: 'SET_SUPABASE_USER', payload: userData }),
     addMeal: (meal) => dispatch({ type: 'ADD_MEAL', payload: meal }),
     updateDailyStats: (stats) => dispatch({ type: 'UPDATE_DAILY_STATS', payload: stats }),
     setSettings: (settings) => dispatch({ type: 'SET_SETTINGS', payload: settings }),
-    resetDailyStats: () => dispatch({ type: 'RESET_DAILY_STATS' })
+    resetDailyStats: () => dispatch({ type: 'RESET_DAILY_STATS' }),
+    setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
+    setError: (error) => dispatch({ type: 'SET_ERROR', payload: error })
   };
 
-  // Load data from localStorage on mount
+  // Инициализация пользователя Supabase при загрузке
   useEffect(() => {
-    const savedState = localStorage.getItem('calorieTrackerState');
-    if (savedState) {
-      const parsedState = JSON.parse(savedState);
-      // Merge with current state, keeping defaults for new fields
-      Object.keys(parsedState).forEach(key => {
-        if (state[key]) {
-          dispatch({ type: `SET_${key.toUpperCase()}`, payload: parsedState[key] });
+    const initializeUser = async () => {
+      // console.log('AppContext: Инициализация пользователя');
+      
+      if (telegramUser) {
+        try {
+          actions.setLoading(true);
+          
+          // Временно используем данные Telegram без Supabase
+          const userData = {
+            name: telegramUser.first_name || telegramUser.username || 'Пользователь',
+            telegramId: telegramUser.id
+          };
+          // console.log('AppContext: Устанавливаем пользователя:', userData);
+          actions.setUser(userData);
+          
+          // Пытаемся подключиться к Supabase только если настроены переменные
+          if (process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_URL !== 'your_supabase_project_url') {
+            // console.log('AppContext: Подключаемся к Supabase...');
+            try {
+              const { data, error } = await getUserOrCreate(telegramUser);
+              
+              if (error) {
+                console.warn('Ошибка Supabase:', error.message);
+                return;
+              }
+              
+              if (data) {
+                // console.log('AppContext: Supabase пользователь создан:', data);
+                actions.setSupabaseUser(data);
+              }
+            } catch (err) {
+              console.warn('Ошибка подключения к Supabase:', err.message);
+            }
+                      } else {
+              // console.log('AppContext: Supabase не настроен, пропускаем');
+            }
+        } catch (err) {
+          console.warn('Ошибка инициализации:', err.message);
+        } finally {
+          actions.setLoading(false);
         }
-      });
+              } else {
+          // console.log('AppContext: Пользователь уже инициализирован или telegramUser отсутствует');
+        }
+    };
+
+    initializeUser();
+  }, [telegramUser]);
+
+  // Обновляем состояние загрузки и ошибок из Supabase
+  useEffect(() => {
+    actions.setLoading(supabaseLoading);
+  }, [supabaseLoading]);
+
+  useEffect(() => {
+    if (supabaseError) {
+      actions.setError(supabaseError);
     }
-  }, []);
+  }, [supabaseError]);
 
   // Save state to localStorage on changes
   useEffect(() => {
@@ -114,7 +175,18 @@ export const AppProvider = ({ children }) => {
   }, [state]);
 
   return (
-    <AppContext.Provider value={{ state, actions }}>
+    <AppContext.Provider value={{ 
+      state, 
+      actions,
+      telegramUser,
+      supabaseActions: {
+        addFoodEntry,
+        getFoodEntries,
+        getUserStats,
+        addAIRequest,
+        deleteFoodEntry
+      }
+    }}>
       {children}
     </AppContext.Provider>
   );

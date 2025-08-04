@@ -1,9 +1,12 @@
-import React from 'react';
-import { BarChart3, TrendingUp, Calendar, Target, Flame, Dumbbell, Droplets, Wheat } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, TrendingUp, Calendar, Target, Flame, Dumbbell, Droplets, Wheat, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const StatsPage = () => {
-  const { state } = useApp();
+  const { state, supabaseActions } = useApp();
+  const [supabaseStats, setSupabaseStats] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const getProgressPercentage = () => {
     return Math.min((state.dailyStats.calories / state.dailyStats.targetCalories) * 100, 100);
@@ -12,6 +15,36 @@ const StatsPage = () => {
   const getMacroPercentage = (current, target) => {
     return Math.min((current / target) * 100, 100);
   };
+
+  // Загрузка статистики из Supabase
+  const loadSupabaseStats = async () => {
+    if (!state.supabaseUser) return;
+
+    setLoading(true);
+    try {
+      // Получаем статистику за последние 7 дней
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      const { data, error } = await supabaseActions.getUserStats(state.supabaseUser.id, startDate, endDate);
+      
+      if (error) {
+        console.warn('Ошибка загрузки статистики:', error);
+      } else {
+        setSupabaseStats(data);
+        setLastUpdated(new Date());
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки статистики:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Загружаем статистику при монтировании компонента
+  useEffect(() => {
+    loadSupabaseStats();
+  }, [state.supabaseUser]);
 
   const weeklyData = [
     { day: 'Пн', calories: 1850, protein: 120, fat: 65, carbs: 200 },
@@ -27,7 +60,7 @@ const StatsPage = () => {
     {
       icon: Flame,
       label: 'Средние калории',
-      value: '2050',
+      value: supabaseStats ? Math.round(supabaseStats.calories / 7) : '2050',
       unit: 'ккал/день',
       color: '#f59e0b',
       trend: '+5%'
@@ -35,8 +68,8 @@ const StatsPage = () => {
     {
       icon: Target,
       label: 'Достижение целей',
-      value: '85%',
-      unit: 'эффективность',
+      value: supabaseStats ? Math.round((supabaseStats.calories / (state.dailyStats.targetCalories * 7)) * 100) : '85',
+      unit: '% эффективность',
       color: '#10b981',
       trend: '+2%'
     },
@@ -147,12 +180,51 @@ const StatsPage = () => {
             color: "rgba(255, 255, 255, 0.9)",
             fontSize: "1rem",
             lineHeight: "1.5",
-            marginBottom: "1.5rem",
+            marginBottom: "1rem",
             maxWidth: "320px",
-            margin: "0 auto 1.5rem"
+            margin: "0 auto 1rem"
           }}>
             Анализ вашего питания и прогресса
           </p>
+          
+          {/* Refresh Button */}
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "1.5rem"
+          }}>
+            <button
+              onClick={loadSupabaseStats}
+              disabled={loading}
+              style={{
+                background: "rgba(255, 255, 255, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                borderRadius: "0.5rem",
+                padding: "0.5rem 1rem",
+                color: "white",
+                fontSize: "0.875rem",
+                cursor: loading ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
+                backdropFilter: "blur(10px)",
+                transition: "all 0.2s"
+              }}
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              {loading ? 'Обновление...' : 'Обновить'}
+            </button>
+            {lastUpdated && (
+              <span style={{
+                fontSize: "0.75rem",
+                color: "rgba(255, 255, 255, 0.7)"
+              }}>
+                Обновлено: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
           
           {/* Quick Stats */}
           <div style={{
@@ -180,6 +252,29 @@ const StatsPage = () => {
                 letterSpacing: "0.5px"
               }}>
                 Анализ
+              </div>
+            </div>
+            <div style={{
+              width: "1px",
+              background: "rgba(255, 255, 255, 0.2)",
+              height: "2rem"
+            }} />
+            <div style={{ textAlign: "center" }}>
+              <div style={{
+                fontSize: "1.25rem",
+                fontWeight: "bold",
+                color: "white",
+                marginBottom: "0.25rem"
+              }}>
+                {state.supabaseUser ? '✅' : '❌'}
+              </div>
+              <div style={{
+                fontSize: "0.75rem",
+                color: "rgba(255, 255, 255, 0.8)",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                {state.supabaseUser ? 'База данных' : 'Локально'}
               </div>
             </div>
             <div style={{

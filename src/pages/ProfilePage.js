@@ -3,13 +3,14 @@ import { User, Edit, Calendar, Trophy, Scale, Target, Download, Upload, Trash2, 
 import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
 import { useNavigate } from 'react-router-dom';
+import SupabaseTest from '../components/SupabaseTest';
 
 const ProfilePage = () => {
   const { state, actions } = useApp();
   const { showAlert, showConfirm } = useTelegram();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ ...state.user });
+  const [editData, setEditData] = useState({ ...(state.user || {}) });
 
   const handleSave = () => {
     actions.setUser(editData);
@@ -18,7 +19,7 @@ const ProfilePage = () => {
   };
 
   const handleCancel = () => {
-    setEditData({ ...state.user });
+    setEditData({ ...(state.user || {}) });
     setIsEditing(false);
   };
 
@@ -147,7 +148,7 @@ const ProfilePage = () => {
           </div>
           <div style={{ flex: 1 }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
-              {state.user.name}
+              {state.user?.name || 'Пользователь'}
             </h2>
             <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
               Пользователь CalorieTracker
@@ -172,8 +173,8 @@ const ProfilePage = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
           {[
             { icon: Calendar, label: 'Дней', value: '7', color: '#3b82f6' },
-            { icon: Trophy, label: 'Цель', value: state.user.targetWeight + 'кг', color: '#10b981' },
-            { icon: Scale, label: 'Текущий', value: state.user.weight + 'кг', color: '#f59e0b' }
+            { icon: Trophy, label: 'Цель', value: (state.user?.targetWeight || 0) + 'кг', color: '#10b981' },
+            { icon: Scale, label: 'Текущий', value: (state.user?.weight || 0) + 'кг', color: '#f59e0b' }
           ].map((stat) => (
             <div key={stat.label} style={{ textAlign: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
               <div style={{ color: stat.color, marginBottom: '0.5rem' }}>
@@ -200,7 +201,7 @@ const ProfilePage = () => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Имя</label>
               <input
                 type="text"
-                value={editData.name}
+                value={editData.name || ''}
                 onChange={(e) => setEditData({ ...editData, name: e.target.value })}
                 className="input"
               />
@@ -211,7 +212,7 @@ const ProfilePage = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Возраст</label>
                 <input
                   type="number"
-                  value={editData.age}
+                  value={editData.age || ''}
                   onChange={(e) => setEditData({ ...editData, age: parseInt(e.target.value) })}
                   className="input"
                 />
@@ -220,7 +221,7 @@ const ProfilePage = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Рост (см)</label>
                 <input
                   type="number"
-                  value={editData.height}
+                  value={editData.height || ''}
                   onChange={(e) => setEditData({ ...editData, height: parseInt(e.target.value) })}
                   className="input"
                 />
@@ -232,7 +233,7 @@ const ProfilePage = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Вес (кг)</label>
                 <input
                   type="number"
-                  value={editData.weight}
+                  value={editData.weight || ''}
                   onChange={(e) => setEditData({ ...editData, weight: parseInt(e.target.value) })}
                   className="input"
                 />
@@ -241,7 +242,7 @@ const ProfilePage = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Целевой вес (кг)</label>
                 <input
                   type="number"
-                  value={editData.targetWeight}
+                  value={editData.targetWeight || ''}
                   onChange={(e) => setEditData({ ...editData, targetWeight: parseInt(e.target.value) })}
                   className="input"
                 />
@@ -261,10 +262,10 @@ const ProfilePage = () => {
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { label: 'Возраст', value: state.user.age + ' лет' },
-                { label: 'Рост', value: state.user.height + ' см' },
-                { label: 'Вес', value: state.user.weight + ' кг' },
-                { label: 'Целевой вес', value: state.user.targetWeight + ' кг' }
+                { label: 'Возраст', value: (state.user?.age || 0) + ' лет' },
+                { label: 'Рост', value: (state.user?.height || 0) + ' см' },
+                { label: 'Вес', value: (state.user?.weight || 0) + ' кг' },
+                { label: 'Целевой вес', value: (state.user?.targetWeight || 0) + ' кг' }
               ].map((item) => (
                 <div key={item.label} style={{ padding: '0.75rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
                   <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
@@ -287,7 +288,7 @@ const ProfilePage = () => {
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Уровень активности</label>
           <select 
-            value={state.user.activityLevel}
+            value={state.user?.activityLevel || 'moderate'}
             onChange={(e) => actions.setUser({ activityLevel: e.target.value })}
             className="input"
           >
@@ -302,7 +303,7 @@ const ProfilePage = () => {
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Цель</label>
           <select 
-            value={state.user.goal}
+            value={state.user?.goal || 'maintain'}
             onChange={(e) => actions.setUser({ goal: e.target.value })}
             className="input"
           >
@@ -393,6 +394,12 @@ const ProfilePage = () => {
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Supabase Test */}
+      <section className="card">
+        <h3 className="meals-title">Тест базы данных</h3>
+        <SupabaseTest />
       </section>
     </div>
   );

@@ -18,7 +18,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { useTelegram } from './hooks/useTelegram';
 
 function App() {
-  const { initTelegram } = useTelegram();
+  const { initTelegram, telegramUser } = useTelegram();
 
   useEffect(() => {
     initTelegram();
@@ -26,7 +26,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <AppProvider>
+      <AppProvider telegramUser={telegramUser}>
         <div className="app-container">
           <div className="app-wrapper">
             <ScrollToTop />

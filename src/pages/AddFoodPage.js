@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
 
 const AddFoodPage = () => {
-  const { actions } = useApp();
+  const { state, actions, supabaseActions } = useApp();
   const { showAlert } = useTelegram();
   const [selectedMeal, setSelectedMeal] = useState('breakfast');
   const [foodDescription, setFoodDescription] = useState('');
@@ -53,28 +53,64 @@ const AddFoodPage = () => {
     }, 2000);
   };
 
-  const saveMeal = () => {
+  const saveMeal = async () => {
     if (!analysisResults) return;
 
-    const meal = {
-      id: Date.now(),
-      type: selectedMeal,
-      description: foodDescription,
-      weight: parseInt(weight) || 0,
-      portions: parseInt(portions),
-      nutrition: analysisResults,
-      date: new Date().toDateString(),
-      timestamp: new Date().toISOString()
-    };
+    try {
+      // Сохраняем в локальное состояние
+      const meal = {
+        id: Date.now(),
+        type: selectedMeal,
+        description: foodDescription,
+        weight: parseInt(weight) || 0,
+        portions: parseInt(portions),
+        nutrition: analysisResults,
+        date: new Date().toDateString(),
+        timestamp: new Date().toISOString()
+      };
 
-    actions.addMeal(meal);
-    showAlert('Прием пищи сохранен!');
-    
-    // Reset form
-    setFoodDescription('');
-    setWeight('');
-    setPortions(1);
-    setAnalysisResults(null);
+      actions.addMeal(meal);
+
+      // Сохраняем в Supabase
+      if (state.supabaseUser) {
+        const foodData = {
+          name: foodDescription,
+          calories: analysisResults.calories,
+          proteins: analysisResults.protein,
+          fats: analysisResults.fat,
+          carbs: analysisResults.carbs,
+          date: new Date().toISOString().split('T')[0]
+        };
+
+        const { error } = await supabaseActions.addFoodEntry(state.supabaseUser.id, foodData);
+        
+        if (error) {
+          console.warn('Ошибка сохранения в Supabase:', error);
+          showAlert('Сохранено локально, но ошибка в базе данных');
+        } else {
+          showAlert('Прием пищи сохранен в базе данных!');
+        }
+              } else {
+          try {
+            showAlert('Прием пищи сохранен локально!');
+          } catch (error) {
+            console.log('Прием пищи сохранен локально!');
+          }
+        }
+      
+      // Reset form
+      setFoodDescription('');
+      setWeight('');
+      setPortions(1);
+      setAnalysisResults(null);
+    } catch (err) {
+      console.error('Ошибка сохранения:', err);
+      try {
+        showAlert('Ошибка при сохранении');
+      } catch (error) {
+        console.log('Ошибка при сохранении');
+      }
+    }
   };
 
   const handleQuickAdd = (food) => {
@@ -82,33 +118,73 @@ const AddFoodPage = () => {
     setShowQuickAdd(true);
   };
 
-  const saveQuickMeal = () => {
+  const saveQuickMeal = async () => {
     if (!selectedQuickFood) return;
 
-    const meal = {
-      id: Date.now(),
-      type: selectedMeal,
-      description: selectedQuickFood.name,
-      weight: parseInt(weight) || 100,
-      portions: parseInt(portions),
-      nutrition: {
-        calories: selectedQuickFood.calories,
-        protein: selectedQuickFood.protein,
-        fat: selectedQuickFood.fat,
-        carbs: selectedQuickFood.carbs,
-        recommendations: `Быстро добавлен продукт: ${selectedQuickFood.name}`
-      },
-      date: new Date().toDateString(),
-      timestamp: new Date().toISOString()
-    };
+    try {
+      // Сохраняем в локальное состояние
+      const meal = {
+        id: Date.now(),
+        type: selectedMeal,
+        description: selectedQuickFood.name,
+        weight: parseInt(weight) || 100,
+        portions: parseInt(portions),
+        nutrition: {
+          calories: selectedQuickFood.calories,
+          protein: selectedQuickFood.protein,
+          fat: selectedQuickFood.fat,
+          carbs: selectedQuickFood.carbs,
+          recommendations: `Быстро добавлен продукт: ${selectedQuickFood.name}`
+        },
+        date: new Date().toDateString(),
+        timestamp: new Date().toISOString()
+      };
 
-    actions.addMeal(meal);
-    showAlert('Продукт добавлен!');
-    
-    setShowQuickAdd(false);
-    setSelectedQuickFood(null);
-    setWeight('');
-    setPortions(1);
+      actions.addMeal(meal);
+
+      // Сохраняем в Supabase
+      if (state.supabaseUser) {
+        const foodData = {
+          name: selectedQuickFood.name,
+          calories: selectedQuickFood.calories,
+          proteins: selectedQuickFood.protein,
+          fats: selectedQuickFood.fat,
+          carbs: selectedQuickFood.carbs,
+          date: new Date().toISOString().split('T')[0]
+        };
+
+        const { error } = await supabaseActions.addFoodEntry(state.supabaseUser.id, foodData);
+        
+        if (error) {
+          console.warn('Ошибка сохранения в Supabase:', error);
+          showAlert('Сохранено локально, но ошибка в базе данных');
+        } else {
+          try {
+            showAlert('Продукт добавлен в базу данных!');
+          } catch (error) {
+            console.log('Продукт добавлен в базу данных!');
+          }
+        }
+              } else {
+          try {
+            showAlert('Продукт добавлен локально!');
+          } catch (error) {
+            console.log('Продукт добавлен локально!');
+          }
+        }
+      
+      setShowQuickAdd(false);
+      setSelectedQuickFood(null);
+      setWeight('');
+      setPortions(1);
+    } catch (err) {
+      console.error('Ошибка сохранения:', err);
+      try {
+        showAlert('Ошибка при сохранении');
+      } catch (error) {
+        console.log('Ошибка при сохранении');
+      }
+    }
   };
 
   const analyzeFoodWithAI = (description, mealType) => {
