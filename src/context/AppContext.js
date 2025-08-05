@@ -190,21 +190,26 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
     },
 
     loadDaysWithEntries: async () => {
-      if (!state.supabaseUser) return;
+      if (!state.supabaseUser) {
+        console.warn('❌ Нет пользователя Supabase для загрузки дней');
+        return;
+      }
       
       try {
+        console.log('🔄 Загружаем количество дней для пользователя:', state.supabaseUser.id);
         const { data, error } = await getDaysWithEntries(state.supabaseUser.id);
         
         if (error) {
-          console.warn('Ошибка загрузки количества дней:', error);
+          console.warn('❌ Ошибка загрузки количества дней:', error);
           return;
         }
         
+        console.log('📊 Получено количество дней:', data);
         actions.setDaysWithEntries(data);
         console.log('✅ Количество дней с записями загружено:', data);
         
       } catch (err) {
-        console.error('Ошибка загрузки количества дней:', err);
+        console.error('❌ Ошибка загрузки количества дней:', err);
       }
     },
 
@@ -331,8 +336,17 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
                 
                 // Синхронизируем данные из Supabase после создания пользователя
                 setTimeout(async () => {
-                  await actions.syncFromSupabase();
-                  await actions.loadDaysWithEntries();
+                  try {
+                    console.log('🔄 Синхронизация данных из Supabase...');
+                    await actions.syncFromSupabase();
+                    
+                    console.log('🔄 Загрузка количества дней с записями...');
+                    await actions.loadDaysWithEntries();
+                    
+                    console.log('✅ Инициализация завершена');
+                  } catch (err) {
+                    console.error('❌ Ошибка при инициализации:', err);
+                  }
                 }, 1000);
               }
             } catch (err) {
@@ -358,6 +372,14 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
   useEffect(() => {
     actions.setLoading(supabaseLoading);
   }, [supabaseLoading]);
+
+  // Загружаем количество дней при изменении пользователя Supabase
+  useEffect(() => {
+    if (state.supabaseUser && state.supabaseUser.id) {
+      console.log('🔄 Пользователь Supabase изменился, загружаем количество дней...');
+      actions.loadDaysWithEntries();
+    }
+  }, [state.supabaseUser?.id]);
 
   useEffect(() => {
     if (supabaseError) {

@@ -187,12 +187,18 @@ export const useSupabase = () => {
     setError(null)
     
     try {
+      console.log('🔄 useSupabase: Загружаем дни для пользователя:', userId);
       const { data, error } = await supabaseHelpers.getDaysWithEntries(userId)
       
-      if (error) throw error
+      if (error) {
+        console.error('❌ useSupabase: Ошибка получения дней:', error);
+        throw error
+      }
       
+      console.log('📊 useSupabase: Получено дней:', data);
       return { data, error: null }
     } catch (err) {
+      console.error('❌ useSupabase: Ошибка:', err);
       setError(err.message)
       return { data: 0, error: err }
     } finally {

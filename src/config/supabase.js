@@ -86,6 +86,8 @@ export const supabaseHelpers = {
 
   // Получить количество дней с записями
   async getDaysWithEntries(userId) {
+    console.log('🔄 supabaseHelpers: Загружаем записи для пользователя:', userId);
+    
     const { data, error } = await supabase
       .from('food_entries')
       .select('date')
@@ -93,12 +95,18 @@ export const supabaseHelpers = {
       .order('date', { ascending: false })
     
     if (error) {
+      console.error('❌ supabaseHelpers: Ошибка запроса:', error);
       return { data: 0, error }
     }
+    
+    console.log('📊 supabaseHelpers: Получено записей:', data?.length || 0);
     
     // Подсчитываем уникальные дни
     const uniqueDays = new Set(data.map(entry => entry.date))
     const daysCount = uniqueDays.size
+    
+    console.log('📊 supabaseHelpers: Уникальных дней:', daysCount);
+    console.log('📊 supabaseHelpers: Даты:', Array.from(uniqueDays));
     
     return { data: daysCount, error: null }
   }

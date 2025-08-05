@@ -440,6 +440,21 @@ const ProfilePage = () => {
       <section className="card">
         <h3 className="meals-title">Тест базы данных</h3>
         <SupabaseTest />
+        
+        {/* Кнопка для ручной загрузки количества дней */}
+        <div style={{ marginTop: '1rem', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
+          <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem' }}>Отладка</h4>
+          <button 
+            onClick={() => actions.loadDaysWithEntries()}
+            className="btn"
+            style={{ marginRight: '0.5rem' }}
+          >
+            Обновить количество дней
+          </button>
+          <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+            Текущее значение: {state.daysWithEntries}
+          </span>
+        </div>
       </section>
     </div>
   );
