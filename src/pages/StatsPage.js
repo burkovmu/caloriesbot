@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Calendar, Target, Flame, Dumbbell, Droplets, Wheat, RefreshCw } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Target, Flame, Dumbbell, Droplets, Wheat, RefreshCw, Clock, History } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import TodayMeals from '../components/TodayMeals';
+import DateStats from '../components/DateStats';
 
 const StatsPage = () => {
   const { state, supabaseActions } = useApp();
   const [supabaseStats, setSupabaseStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [viewMode, setViewMode] = useState('today'); // 'today' или 'history'
 
   const getProgressPercentage = () => {
     return Math.min((state.dailyStats.calories / state.dailyStats.targetCalories) * 100, 100);
@@ -320,218 +322,279 @@ const StatsPage = () => {
         </div>
       </section>
 
-      {/* Daily Progress */}
-      <section className="card">
-        <h3 className="meals-title">Прогресс сегодня</h3>
-        
-        <div style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Калории</span>
-            <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
-              {state.dailyStats.calories} / {state.dailyStats.targetCalories} ккал
-            </span>
-          </div>
-          <div style={{ width: '100%', height: '0.75rem', background: '#e5e7eb', borderRadius: '0.375rem', overflow: 'hidden' }}>
-            <div 
-              style={{ 
-                width: `${getProgressPercentage()}%`, 
-                height: '100%', 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '0.375rem',
-                transition: 'width 0.5s ease'
-              }}
-            />
-          </div>
+      {/* View Mode Toggle */}
+      <section className="card" style={{ marginBottom: '1rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: '0.5rem',
+          background: '#f8fafc',
+          borderRadius: '0.75rem',
+          padding: '0.25rem'
+        }}>
+          <button
+            onClick={() => setViewMode('today')}
+            style={{
+              background: viewMode === 'today' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+              color: viewMode === 'today' ? 'white' : '#6b7280',
+              border: 'none',
+              borderRadius: '0.5rem',
+              padding: '0.75rem 1rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Clock className="w-4 h-4" />
+            Сегодня
+          </button>
+          <button
+            onClick={() => setViewMode('history')}
+            style={{
+              background: viewMode === 'history' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+              color: viewMode === 'history' ? 'white' : '#6b7280',
+              border: 'none',
+              borderRadius: '0.5rem',
+              padding: '0.75rem 1rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            <History className="w-4 h-4" />
+            История
+          </button>
         </div>
+      </section>
 
-        {/* Macro Distribution */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-          {[
-            { 
-              label: 'Белки', 
-              current: state.dailyStats.protein, 
-              target: state.dailyStats.targetProtein, 
-              unit: 'г',
-              color: '#3b82f6',
-              icon: Dumbbell
-            },
-            { 
-              label: 'Жиры', 
-              current: state.dailyStats.fat, 
-              target: state.dailyStats.targetFat, 
-              unit: 'г',
-              color: '#f59e0b',
-              icon: Droplets
-            },
-            { 
-              label: 'Углеводы', 
-              current: state.dailyStats.carbs, 
-              target: state.dailyStats.targetCarbs, 
-              unit: 'г',
-              color: '#10b981',
-              icon: Wheat
-            }
-          ].map((macro) => (
-            <div key={macro.label} style={{ textAlign: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-              <div style={{ color: macro.color, marginBottom: '0.5rem' }}>
-                <macro.icon className="w-5 h-5 mx-auto" />
+      {/* Conditional Content Based on View Mode */}
+      {viewMode === 'today' ? (
+        <>
+          {/* Daily Progress */}
+          <section className="card">
+            <h3 className="meals-title">Прогресс сегодня</h3>
+            
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Калории</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
+                  {state.dailyStats.calories} / {state.dailyStats.targetCalories} ккал
+                </span>
               </div>
-              <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
-                {Math.round(macro.current)}/{Math.round(macro.target)}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-                {macro.label}
-              </div>
-              <div style={{ width: '100%', height: '0.25rem', background: '#e5e7eb', borderRadius: '0.125rem', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '0.75rem', background: '#e5e7eb', borderRadius: '0.375rem', overflow: 'hidden' }}>
                 <div 
                   style={{ 
-                    width: `${getMacroPercentage(macro.current, macro.target)}%`, 
+                    width: `${getProgressPercentage()}%`, 
                     height: '100%', 
-                    background: macro.color,
-                    borderRadius: '0.125rem'
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '0.375rem',
+                    transition: 'width 0.5s ease'
                   }}
                 />
               </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Quick Stats */}
-      <section className="card">
-        <h3 className="meals-title">Быстрая статистика</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          {quickStats.map((stat) => (
-            <div key={stat.label} style={{ 
-              padding: '1rem', 
-              background: '#f9fafb', 
-              borderRadius: '0.75rem',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <div style={{ color: stat.color }}>
-                  <stat.icon className="w-5 h-5" />
+            {/* Macro Distribution */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+              {[
+                { 
+                  label: 'Белки', 
+                  current: state.dailyStats.protein, 
+                  target: state.dailyStats.targetProtein, 
+                  unit: 'г',
+                  color: '#3b82f6',
+                  icon: Dumbbell
+                },
+                { 
+                  label: 'Жиры', 
+                  current: state.dailyStats.fat, 
+                  target: state.dailyStats.targetFat, 
+                  unit: 'г',
+                  color: '#f59e0b',
+                  icon: Droplets
+                },
+                { 
+                  label: 'Углеводы', 
+                  current: state.dailyStats.carbs, 
+                  target: state.dailyStats.targetCarbs, 
+                  unit: 'г',
+                  color: '#10b981',
+                  icon: Wheat
+                }
+              ].map((macro) => (
+                <div key={macro.label} style={{ textAlign: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
+                  <div style={{ color: macro.color, marginBottom: '0.5rem' }}>
+                    <macro.icon className="w-5 h-5 mx-auto" />
+                  </div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
+                    {Math.round(macro.current)}/{Math.round(macro.target)}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+                    {macro.label}
+                  </div>
+                  <div style={{ width: '100%', height: '0.25rem', background: '#e5e7eb', borderRadius: '0.125rem', overflow: 'hidden' }}>
+                    <div 
+                      style={{ 
+                        width: `${getMacroPercentage(macro.current, macro.target)}%`, 
+                        height: '100%', 
+                        background: macro.color,
+                        borderRadius: '0.125rem'
+                      }}
+                    />
+                  </div>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{stat.trend}</span>
-              </div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
-                {stat.value}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
-                {stat.label}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                {stat.unit}
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* Weekly Overview */}
-      <section className="card">
-        <h3 className="meals-title">Недельный обзор</h3>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '0.75rem',
-          maxHeight: '300px',
-          overflowY: 'auto'
-        }}>
-          {weeklyData.map((day) => (
-            <div key={day.day} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              padding: '0.75rem', 
-              background: '#f9fafb', 
-              borderRadius: '0.5rem',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  width: '2rem',
-                  height: '2rem',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold'
+          {/* Quick Stats */}
+          <section className="card">
+            <h3 className="meals-title">Быстрая статистика</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              {quickStats.map((stat) => (
+                <div key={stat.label} style={{ 
+                  padding: '1rem', 
+                  background: '#f9fafb', 
+                  borderRadius: '0.75rem',
+                  border: '1px solid #e5e7eb'
                 }}>
-                  {day.day}
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.125rem' }}>
-                    {day.day === 'Пн' ? 'Понедельник' : 
-                     day.day === 'Вт' ? 'Вторник' : 
-                     day.day === 'Ср' ? 'Среда' : 
-                     day.day === 'Чт' ? 'Четверг' : 
-                     day.day === 'Пт' ? 'Пятница' : 
-                     day.day === 'Сб' ? 'Суббота' : 'Воскресенье'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ color: stat.color }}>
+                      <stat.icon className="w-5 h-5" />
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{stat.trend}</span>
+                  </div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.25rem' }}>
+                    {stat.value}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+                    {stat.label}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                    Белки: {day.protein}г | Жиры: {day.fat}г | Углеводы: {day.carbs}г
+                    {stat.unit}
                   </div>
                 </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937' }}>
-                  {day.calories}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                  ккал
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* Personalized Insights */}
-      <section className="card">
-        <h3 className="meals-title">Персональные рекомендации</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {insights.map((insight, index) => (
-            <div key={index} style={{
-              padding: '1rem',
-              background: insight.type === 'positive' ? '#f0fdf4' : 
-                         insight.type === 'warning' ? '#fef3c7' : '#eff6ff',
-              borderRadius: '0.75rem',
-              border: `1px solid ${
-                insight.type === 'positive' ? '#bbf7d0' : 
-                insight.type === 'warning' ? '#fde68a' : '#bfdbfe'
-              }`
+          {/* Weekly Overview */}
+          <section className="card">
+            <h3 className="meals-title">Недельный обзор</h3>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '0.75rem',
+              maxHeight: '300px',
+              overflowY: 'auto'
             }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <div style={{ fontSize: '1.5rem' }}>{insight.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
-                    color: '#1f2937', 
-                    marginBottom: '0.25rem' 
-                  }}>
-                    {insight.title}
-                  </h4>
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: '#6b7280', 
-                    lineHeight: '1.5' 
-                  }}>
-                    {insight.description}
-                  </p>
+              {weeklyData.map((day) => (
+                <div key={day.day} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  padding: '0.75rem', 
+                  background: '#f9fafb', 
+                  borderRadius: '0.5rem',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{
+                      width: '2rem',
+                      height: '2rem',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      borderRadius: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {day.day}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.125rem' }}>
+                        {day.day === 'Пн' ? 'Понедельник' : 
+                         day.day === 'Вт' ? 'Вторник' : 
+                         day.day === 'Ср' ? 'Среда' : 
+                         day.day === 'Чт' ? 'Четверг' : 
+                         day.day === 'Пт' ? 'Пятница' : 
+                         day.day === 'Сб' ? 'Суббота' : 'Воскресенье'}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                        Белки: {day.protein}г | Жиры: {day.fat}г | Углеводы: {day.carbs}г
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937' }}>
+                      {day.calories}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                      ккал
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* Today's Meals */}
-      <TodayMeals />
+          {/* Personalized Insights */}
+          <section className="card">
+            <h3 className="meals-title">Персональные рекомендации</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {insights.map((insight, index) => (
+                <div key={index} style={{
+                  padding: '1rem',
+                  background: insight.type === 'positive' ? '#f0fdf4' : 
+                             insight.type === 'warning' ? '#fef3c7' : '#eff6ff',
+                  borderRadius: '0.75rem',
+                  border: `1px solid ${
+                    insight.type === 'positive' ? '#bbf7d0' : 
+                    insight.type === 'warning' ? '#fde68a' : '#bfdbfe'
+                  }`
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                    <div style={{ fontSize: '1.5rem' }}>{insight.icon}</div>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ 
+                        fontSize: '1rem', 
+                        fontWeight: '600', 
+                        color: '#1f2937', 
+                        marginBottom: '0.25rem' 
+                      }}>
+                        {insight.title}
+                      </h4>
+                      <p style={{ 
+                        fontSize: '0.875rem', 
+                        color: '#6b7280', 
+                        lineHeight: '1.5' 
+                      }}>
+                        {insight.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Today's Meals */}
+          <TodayMeals />
+        </>
+      ) : (
+        <DateStats />
+      )}
     </div>
   );
 };
