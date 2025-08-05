@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 
 const SupabaseTest = () => {
-  const { state, supabaseActions, telegramUser } = useApp();
+  const { state, actions, telegramUser } = useApp();
   const [testResult, setTestResult] = useState('');
   const [userData, setUserData] = useState(null);
 
@@ -38,7 +38,7 @@ const SupabaseTest = () => {
         carbs: 15
       };
 
-      const { data, error } = await supabaseActions.addFoodEntry(state.supabaseUser.id, testFood);
+      const { data, error } = await actions.addFoodEntry(state.supabaseUser.id, testFood);
       
       if (error) {
         setTestResult(`Ошибка: ${error.message}`);
@@ -49,7 +49,7 @@ const SupabaseTest = () => {
       
       // Удаляем тестовую запись
       setTimeout(async () => {
-        await supabaseActions.deleteFoodEntry(data.id);
+        await actions.deleteFoodEntry(data.id);
         setTestResult('✅ Тест завершен. Тестовая запись удалена.');
       }, 2000);
 
@@ -68,7 +68,7 @@ const SupabaseTest = () => {
       setTestResult('Проверка данных пользователя...');
       
       // Получаем все записи пользователя
-      const { data, error } = await supabaseActions.getFoodEntries(state.supabaseUser.id);
+      const { data, error } = await actions.getFoodEntries(state.supabaseUser.id);
       
       if (error) {
         setTestResult(`Ошибка получения данных: ${error.message}`);

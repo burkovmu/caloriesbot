@@ -189,7 +189,7 @@ const ProfilePage = () => {
         {/* Personal Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
           {[
-            { icon: Calendar, label: 'Дней', value: '7', color: '#3b82f6' },
+            { icon: Calendar, label: 'Дней', value: state.daysWithEntries.toString(), color: '#3b82f6' },
             { icon: Trophy, label: 'Цель', value: (state.user?.targetWeight || 0) + 'кг', color: '#10b981' },
             { icon: Scale, label: 'Текущий', value: (state.user?.weight || 0) + 'кг', color: '#f59e0b' }
           ].map((stat) => (

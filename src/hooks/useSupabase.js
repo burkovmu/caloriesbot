@@ -181,6 +181,25 @@ export const useSupabase = () => {
     }
   }
 
+  // Получить количество дней с записями
+  const getDaysWithEntries = async (userId) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const { data, error } = await supabaseHelpers.getDaysWithEntries(userId)
+      
+      if (error) throw error
+      
+      return { data, error: null }
+    } catch (err) {
+      setError(err.message)
+      return { data: 0, error: err }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Обновить настройки пользователя
   const updateUserSettings = async (userId, settings) => {
     setLoading(true)
@@ -236,6 +255,7 @@ export const useSupabase = () => {
     getUserStats,
     addAIRequest,
     deleteFoodEntry,
+    getDaysWithEntries,
     updateUserSettings
   }
 } 

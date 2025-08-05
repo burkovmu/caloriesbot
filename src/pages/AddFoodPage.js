@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
 
 const AddFoodPage = () => {
-  const { state, actions, supabaseActions } = useApp();
+  const { state, actions } = useApp();
   const { showAlert } = useTelegram();
   const [selectedMeal, setSelectedMeal] = useState('breakfast');
   const [foodDescription, setFoodDescription] = useState('');
@@ -99,7 +99,7 @@ const AddFoodPage = () => {
           date: new Date().toISOString().split('T')[0]
         };
 
-        const { error } = await supabaseActions.addFoodEntry(state.supabaseUser.id, foodData);
+        const { error } = await actions.addFoodEntry(state.supabaseUser.id, foodData);
         
         if (error) {
           console.warn('Ошибка сохранения в Supabase:', error);
@@ -169,7 +169,7 @@ const AddFoodPage = () => {
           date: new Date().toISOString().split('T')[0]
         };
 
-        const { error } = await supabaseActions.addFoodEntry(state.supabaseUser.id, foodData);
+        const { error } = await actions.addFoodEntry(state.supabaseUser.id, foodData);
         
         if (error) {
           console.warn('Ошибка сохранения в Supabase:', error);

@@ -19,6 +19,7 @@ const initialState = {
   },
   meals: [],
   weeklyStats: [],
+  daysWithEntries: 0,
   settings: {
     notifications: true,
     darkMode: false,
@@ -83,6 +84,11 @@ const appReducer = (state, action) => {
         ...state,
         error: action.payload
       };
+    case 'SET_DAYS_WITH_ENTRIES':
+      return {
+        ...state,
+        daysWithEntries: action.payload
+      };
     default:
       return state;
   }
@@ -90,7 +96,7 @@ const appReducer = (state, action) => {
 
 export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { getUserOrCreate, addFoodEntry, getFoodEntries, getUserStats, addAIRequest, deleteFoodEntry, updateUserSettings, loading: supabaseLoading, error: supabaseError } = useSupabase();
+  const { getUserOrCreate, addFoodEntry, getFoodEntries, getUserStats, addAIRequest, deleteFoodEntry, getDaysWithEntries, updateUserSettings, loading: supabaseLoading, error: supabaseError } = useSupabase();
   const { telegramUser: hookTelegramUser } = useTelegram();
   
   // Используем telegramUser из пропов или из хука
@@ -99,9 +105,25 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
   const actions = {
     setUser: (userData) => dispatch({ type: 'SET_USER', payload: userData }),
     setSupabaseUser: (userData) => dispatch({ type: 'SET_SUPABASE_USER', payload: userData }),
-    addMeal: (meal) => dispatch({ type: 'ADD_MEAL', payload: meal }),
+    addMeal: async (meal) => {
+      dispatch({ type: 'ADD_MEAL', payload: meal });
+      
+      // Если есть пользователь Supabase, обновляем количество дней
+      if (state.supabaseUser) {
+        try {
+          const { data, error } = await getDaysWithEntries(state.supabaseUser.id);
+          
+          if (!error && data !== undefined) {
+            actions.setDaysWithEntries(data);
+          }
+        } catch (err) {
+          console.error('Ошибка обновления количества дней:', err);
+        }
+      }
+    },
     updateDailyStats: (stats) => dispatch({ type: 'UPDATE_DAILY_STATS', payload: stats }),
     setSettings: (settings) => dispatch({ type: 'SET_SETTINGS', payload: settings }),
+    setDaysWithEntries: (days) => dispatch({ type: 'SET_DAYS_WITH_ENTRIES', payload: days }),
     resetDailyStats: () => dispatch({ type: 'RESET_DAILY_STATS' }),
     setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
     setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
@@ -164,6 +186,85 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
         console.error('Ошибка синхронизации:', err);
       } finally {
         actions.setLoading(false);
+      }
+    },
+
+    loadDaysWithEntries: async () => {
+      if (!state.supabaseUser) return;
+      
+      try {
+        const { data, error } = await getDaysWithEntries(state.supabaseUser.id);
+        
+        if (error) {
+          console.warn('Ошибка загрузки количества дней:', error);
+          return;
+        }
+        
+        actions.setDaysWithEntries(data);
+        console.log('✅ Количество дней с записями загружено:', data);
+        
+      } catch (err) {
+        console.error('Ошибка загрузки количества дней:', err);
+      }
+    },
+
+    addFoodEntry: async (userId, foodData) => {
+      if (!state.supabaseUser) return { error: 'Пользователь не найден' };
+      
+      try {
+        const { data, error } = await addFoodEntry(userId, foodData);
+        
+        if (error) {
+          console.warn('Ошибка добавления записи:', error);
+          return { error };
+        }
+        
+        // Обновляем количество дней после добавления записи
+        await actions.loadDaysWithEntries();
+        
+        return { data, error: null };
+      } catch (err) {
+        console.error('Ошибка добавления записи:', err);
+        return { error: err.message };
+      }
+    },
+
+    deleteFoodEntry: async (entryId) => {
+      if (!state.supabaseUser) return { error: 'Пользователь не найден' };
+      
+      try {
+        const { error } = await deleteFoodEntry(entryId);
+        
+        if (error) {
+          console.warn('Ошибка удаления записи:', error);
+          return { error };
+        }
+        
+        // Обновляем количество дней после удаления записи
+        await actions.loadDaysWithEntries();
+        
+        return { error: null };
+      } catch (err) {
+        console.error('Ошибка удаления записи:', err);
+        return { error: err.message };
+      }
+    },
+
+    getFoodEntries: async (userId, date = null) => {
+      if (!state.supabaseUser) return { error: 'Пользователь не найден' };
+      
+      try {
+        const { data, error } = await getFoodEntries(userId, date);
+        
+        if (error) {
+          console.warn('Ошибка получения записей:', error);
+          return { error };
+        }
+        
+        return { data, error: null };
+      } catch (err) {
+        console.error('Ошибка получения записей:', err);
+        return { error: err.message };
       }
     }
   };
@@ -231,6 +332,7 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
                 // Синхронизируем данные из Supabase после создания пользователя
                 setTimeout(async () => {
                   await actions.syncFromSupabase();
+                  await actions.loadDaysWithEntries();
                 }, 1000);
               }
             } catch (err) {

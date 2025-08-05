@@ -82,5 +82,24 @@ export const supabaseHelpers = {
       .lte('date', endDate)
     
     return { data, error }
+  },
+
+  // Получить количество дней с записями
+  async getDaysWithEntries(userId) {
+    const { data, error } = await supabase
+      .from('food_entries')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: false })
+    
+    if (error) {
+      return { data: 0, error }
+    }
+    
+    // Подсчитываем уникальные дни
+    const uniqueDays = new Set(data.map(entry => entry.date))
+    const daysCount = uniqueDays.size
+    
+    return { data: daysCount, error: null }
   }
 } 
