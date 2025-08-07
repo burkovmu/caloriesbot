@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Save, Edit, Sun, CloudSun, Moon, Cookie, Plus, X, Mic } from 'lucide-react';
+import { Brain, Save, Edit, Sun, CloudSun, Moon, Cookie, X, Mic } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
 import VoiceInput from '../components/VoiceInput';
@@ -240,22 +240,6 @@ const AddFoodPage = () => {
         
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
-          {/* Icon */}
-          <div style={{
-            width: '4rem',
-            height: '4rem',
-            background: 'rgba(255, 255, 255, 0.2)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1rem',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.3)'
-          }}>
-            <Plus className="w-8 h-8 text-white" style={{ animation: 'pulse 2s infinite' }} />
-          </div>
-          
           {/* Title */}
           <h1 style={{
             fontSize: '1.75rem',
@@ -272,9 +256,8 @@ const AddFoodPage = () => {
             color: 'rgba(255, 255, 255, 0.9)',
             fontSize: '1rem',
             lineHeight: '1.5',
-            marginBottom: '1.5rem',
             maxWidth: '320px',
-            margin: '0 auto 1.5rem'
+            margin: '0 auto'
           }}>
             Введите данные и проанализируем калории и БЖУ
           </p>
