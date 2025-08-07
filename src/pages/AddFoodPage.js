@@ -20,6 +20,7 @@ const AddFoodPage = () => {
 
   // Обработка результата голосового ввода
   const handleVoiceResult = (foodData) => {
+    console.log('Получен голосовой результат:', foodData);
     setFoodDescription(foodData.description);
     // Убираем автоматический анализ - теперь только заполняем поле
   };

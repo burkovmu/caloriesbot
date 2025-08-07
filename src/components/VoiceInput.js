@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Loader2 } from 'lucide-react';
-import { useTelegram } from '../hooks/useTelegram';
+import { Mic, MicOff } from 'lucide-react';
 
 const VoiceInput = ({ onVoiceResult }) => {
-  const { showAlert } = useTelegram();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [accumulatedText, setAccumulatedText] = useState('');
+  const [isRestarting, setIsRestarting] = useState(false);
   const recognitionRef = useRef(null);
 
   // Проверяем поддержку распознавания речи
@@ -16,60 +16,118 @@ const VoiceInput = ({ onVoiceResult }) => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'ru-RU';
       
+      recognitionRef.current.onstart = () => {
+        console.log('Распознавание началось');
+        setIsRestarting(false);
+      };
+      
       recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        processTranscript(transcript);
+        console.log('Получен результат распознавания:', event);
+        
+        // Получаем последний результат
+        const lastResult = event.results[event.results.length - 1];
+        const transcript = lastResult[0].transcript;
+        const isFinal = lastResult.isFinal;
+        
+        console.log('Извлеченный текст:', transcript, 'Финальный:', isFinal);
+        
+        // Обрабатываем только финальные результаты
+        if (isFinal) {
+          setIsRestarting(false); // Сбрасываем флаг перезапуска
+          processTranscript(transcript);
+        }
       };
       
       recognitionRef.current.onerror = (event) => {
         console.error('Ошибка распознавания:', event.error);
-        showAlert('Ошибка распознавания речи. Попробуйте текстовый ввод.');
         setIsRecording(false);
         setIsProcessing(false);
       };
       
       recognitionRef.current.onend = () => {
-        setIsRecording(false);
+        console.log('Распознавание завершено');
+        // При continuous = true onend не должен срабатывать во время записи
+        // Если сработал, значит что-то пошло не так
+        if (isRecording) {
+          console.log('Неожиданное завершение записи, пытаемся перезапустить...');
+          try {
+            setIsRestarting(true);
+            recognitionRef.current.start();
+          } catch (error) {
+            console.error('Ошибка перезапуска записи:', error);
+            setIsRestarting(false);
+          }
+        }
       };
     }
   }, []);
 
   const startRecording = () => {
+    console.log('Начинаем запись...');
     if (hasSpeechRecognition && recognitionRef.current) {
       try {
+        // Очищаем накопленный текст при начале новой записи
+        setAccumulatedText('');
         recognitionRef.current.start();
         setIsRecording(true);
         setIsProcessing(true);
-        showAlert('🎤 Говорите...');
+        console.log('Запись начата');
       } catch (error) {
         console.error('Ошибка начала записи:', error);
-        showAlert('Ошибка начала записи');
       }
     } else {
-      showAlert('Распознавание речи не поддерживается в вашем браузере.');
+      console.log('Распознавание речи не поддерживается');
     }
   };
 
   const stopRecording = () => {
+    console.log('Останавливаем запись...');
+    console.log('Накопленный текст перед остановкой:', accumulatedText);
+    
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
+      setIsRecording(false);
+      setIsProcessing(false);
+      
+      // Передаем накопленный текст только при остановке записи
+      if (accumulatedText.trim()) {
+        console.log('Передаем накопленный текст:', accumulatedText.trim());
+        onVoiceResult({
+          description: accumulatedText.trim()
+        });
+        // Очищаем накопленный текст
+        setAccumulatedText('');
+      } else {
+        console.log('Накопленный текст пустой');
+      }
+    } else {
+      console.log('Запись не активна или распознавание недоступно');
     }
   };
 
   const processTranscript = (transcript) => {
     console.log('Распознанный текст:', transcript);
     
-    // Просто передаем распознанный текст в текстовое поле
-    onVoiceResult({
-      description: transcript
+    // Накопляем текст вместо немедленной передачи
+    setAccumulatedText(prev => {
+      const newText = prev + ' ' + transcript;
+      console.log('Накопленный текст:', newText);
+      
+      // Ограничиваем длину текста (например, 1000 символов)
+      if (newText.length > 1000) {
+        console.log('Достигнут лимит текста (1000 символов)');
+        return newText.substring(0, 1000) + '...';
+      }
+      
+      return newText;
     });
     
+    // Не останавливаем запись, только убираем индикатор обработки
     setIsProcessing(false);
-    showAlert('✅ Голосовое сообщение распознано!');
   };
 
   return (
@@ -148,27 +206,7 @@ const VoiceInput = ({ onVoiceResult }) => {
           </button>
         )}
         
-        {/* Индикатор обработки */}
-        {isProcessing && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.75rem 1rem',
-            background: '#fef3c7',
-            borderRadius: '0.5rem',
-            border: '1px solid #fbbf24'
-          }}>
-            <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
-            <span style={{
-              fontSize: '0.875rem',
-              color: '#92400e',
-              fontWeight: '500'
-            }}>
-              Распознаю голосовое сообщение...
-            </span>
-          </div>
-        )}
+
       </div>
       
       {/* Индикатор записи */}
@@ -186,7 +224,7 @@ const VoiceInput = ({ onVoiceResult }) => {
             width: '0.75rem',
             height: '0.75rem',
             borderRadius: '50%',
-            background: '#ef4444',
+            background: isRestarting ? '#fbbf24' : '#ef4444',
             animation: 'pulse 1s infinite'
           }} />
           <span style={{
@@ -194,8 +232,17 @@ const VoiceInput = ({ onVoiceResult }) => {
             color: '#166534',
             fontWeight: '500'
           }}>
-            Записываю... Говорите!
+            {isRestarting ? 'Перезапуск...' : 'Записываю... Говорите!'}
           </span>
+          {accumulatedText && (
+            <span style={{
+              fontSize: '0.75rem',
+              color: '#166534',
+              marginLeft: 'auto'
+            }}>
+              {accumulatedText.length} символов
+            </span>
+          )}
         </div>
       )}
 
