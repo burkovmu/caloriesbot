@@ -116,22 +116,6 @@ const HomePage = () => {
         
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
-          {/* Icon */}
-          <div style={{
-            width: '4rem',
-            height: '4rem',
-            background: 'rgba(255, 255, 255, 0.2)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1rem',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.3)'
-          }}>
-            <Heart className="w-8 h-8 text-white" style={{ animation: 'pulse 2s infinite' }} />
-          </div>
-          
           {/* Title */}
           <h1 style={{
             fontSize: '1.75rem',
@@ -148,66 +132,162 @@ const HomePage = () => {
             color: 'rgba(255, 255, 255, 0.9)',
             fontSize: '1rem',
             lineHeight: '1.5',
-            marginBottom: '1.5rem',
             maxWidth: '280px',
-            margin: '0 auto 1.5rem'
+            margin: '0 auto'
           }}>
             Начните свой путь к здоровому питанию с нашим трекером
           </p>
-          
-          {/* Calories Progress Bar */}
+        </div>
+      </section>
+
+      {/* Calories Today Section */}
+      <section style={{
+        background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+        borderRadius: '1rem',
+        padding: '1.25rem',
+        marginBottom: '1rem',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)'
+      }}>
+        {/* Content */}
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          {/* Header */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            borderRadius: '1rem',
-            padding: '1rem',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1rem'
           }}>
             <div style={{
               display: 'flex',
-              justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '0.75rem'
-            }}>
-              <h3 style={{
-                fontSize: '1rem',
-                fontWeight: '600',
-                color: 'white',
-                margin: 0
-              }}>
-                Калории сегодня
-              </h3>
-              <span style={{
-                fontSize: '1rem',
-                fontWeight: '600',
-                color: 'white'
-              }}>
-                {getProgressPercentage().toFixed(0)}%
-              </span>
-            </div>
-            
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '0.5rem',
-              height: '0.5rem',
-              overflow: 'hidden',
-              marginBottom: '0.5rem'
+              gap: '0.5rem'
             }}>
               <div style={{
-                background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
-                height: '100%',
-                width: `${getProgressPercentage()}%`,
-                borderRadius: '0.5rem',
-                transition: 'width 0.3s ease'
-              }} />
+                width: '2.5rem',
+                height: '2.5rem',
+                background: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
+              }}>
+                <Flame className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  margin: 0,
+                  marginBottom: '0.125rem'
+                }}>
+                  Калории сегодня
+                </h2>
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  margin: 0
+                }}>
+                  Ваш прогресс
+                </p>
+              </div>
             </div>
             
             <div style={{
-              fontSize: '0.875rem',
-              color: 'rgba(255, 255, 255, 0.8)',
-              textAlign: 'center'
+              textAlign: 'center',
+              background: 'rgba(255, 255, 255, 0.15)',
+              borderRadius: '0.75rem',
+              padding: '0.75rem',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              minWidth: '3.5rem'
             }}>
-              {state.dailyStats.calories} / {state.dailyStats.targetCalories} ккал
+              <div style={{
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                color: 'white',
+                marginBottom: '0.125rem'
+              }}>
+                {getProgressPercentage().toFixed(0)}%
+              </div>
+              <div style={{
+                fontSize: '0.625rem',
+                color: 'rgba(255, 255, 255, 0.8)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Прогресс
+              </div>
+            </div>
+          </div>
+          
+          {/* Progress Bar with Integrated Stats */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '0.75rem',
+            height: '2.5rem',
+            overflow: 'hidden',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            {/* Progress Fill */}
+            <div style={{
+              background: 'linear-gradient(90deg, #ffffff 0%, #f0fdf4 100%)',
+              height: '100%',
+              width: `${getProgressPercentage()}%`,
+              borderRadius: '0.75rem',
+              transition: 'width 0.5s ease',
+              boxShadow: '0 2px 8px rgba(255, 255, 255, 0.3)',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {/* Съедено - внутри прогресс-бара */}
+              <div style={{
+                position: 'absolute',
+                left: '0.75rem',
+                color: '#10b981',
+                fontWeight: 'bold',
+                fontSize: '0.875rem',
+                textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+              }}>
+                {state.dailyStats.calories}
+              </div>
+            </div>
+            
+            {/* Осталось - справа от прогресс-бара */}
+            <div style={{
+              position: 'absolute',
+              right: '0.75rem',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '0.875rem',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+            }}>
+              {Math.max(0, state.dailyStats.targetCalories - state.dailyStats.calories)}
+            </div>
+            
+            {/* Подписи под прогресс-баром */}
+            <div style={{
+              position: 'absolute',
+              bottom: '-1.25rem',
+              left: '0',
+              right: '0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '0.625rem',
+              color: 'rgba(255, 255, 255, 0.8)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              <span>Съедено</span>
+              <span>{state.dailyStats.calories > state.dailyStats.targetCalories ? 'Превышено' : 'Осталось'}</span>
             </div>
           </div>
         </div>
