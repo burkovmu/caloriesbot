@@ -64,15 +64,7 @@ const StatsPage = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [state.supabaseUser]);
 
-  const weeklyData = [
-    { day: 'Пн', calories: 1850, protein: 120, fat: 65, carbs: 200 },
-    { day: 'Вт', calories: 2100, protein: 140, fat: 70, carbs: 220 },
-    { day: 'Ср', calories: 1950, protein: 130, fat: 68, carbs: 210 },
-    { day: 'Чт', calories: 2200, protein: 150, fat: 75, carbs: 230 },
-    { day: 'Пт', calories: 1800, protein: 125, fat: 60, carbs: 190 },
-    { day: 'Сб', calories: 2400, protein: 160, fat: 80, carbs: 250 },
-    { day: 'Вс', calories: 2000, protein: 135, fat: 70, carbs: 215 }
-  ];
+
 
   const quickStats = [
     {
@@ -487,67 +479,7 @@ const StatsPage = () => {
             </div>
           </section>
 
-          {/* Weekly Overview */}
-          <section className="card">
-            <h3 className="meals-title">Недельный обзор</h3>
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '0.75rem',
-              maxHeight: '300px',
-              overflowY: 'auto'
-            }}>
-              {weeklyData.map((day) => (
-                <div key={day.day} style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  padding: '0.75rem', 
-                  background: '#f9fafb', 
-                  borderRadius: '0.5rem',
-                  border: '1px solid #e5e7eb'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{
-                      width: '2rem',
-                      height: '2rem',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      borderRadius: '0.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold'
-                    }}>
-                      {day.day}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.125rem' }}>
-                        {day.day === 'Пн' ? 'Понедельник' : 
-                         day.day === 'Вт' ? 'Вторник' : 
-                         day.day === 'Ср' ? 'Среда' : 
-                         day.day === 'Чт' ? 'Четверг' : 
-                         day.day === 'Пт' ? 'Пятница' : 
-                         day.day === 'Сб' ? 'Суббота' : 'Воскресенье'}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                        Белки: {day.protein}г | Жиры: {day.fat}г | Углеводы: {day.carbs}г
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937' }}>
-                      {day.calories}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                      ккал
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+
 
           {/* Personalized Insights */}
           <section className="card">

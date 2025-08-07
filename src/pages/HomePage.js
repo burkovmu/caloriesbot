@@ -155,63 +155,59 @@ const HomePage = () => {
             Начните свой путь к здоровому питанию с нашим трекером
           </p>
           
-          {/* Quick Stats */}
+          {/* Calories Progress Bar */}
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-around',
             background: 'rgba(255, 255, 255, 0.15)',
             borderRadius: '1rem',
             padding: '1rem',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.2)'
           }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: 'white',
-                marginBottom: '0.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}>
-                {loading ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : null}
-                {state.dailyStats.calories}
-              </div>
-              <div style={{
-                fontSize: '0.75rem',
-                color: 'rgba(255, 255, 255, 0.8)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                ккал сегодня
-              </div>
-            </div>
             <div style={{
-              width: '1px',
-              background: 'rgba(255, 255, 255, 0.3)',
-              margin: '0 0.5rem'
-            }} />
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
                 color: 'white',
-                marginBottom: '0.25rem'
+                margin: 0
+              }}>
+                Калории сегодня
+              </h3>
+              <span style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'white'
               }}>
                 {getProgressPercentage().toFixed(0)}%
-              </div>
+              </span>
+            </div>
+            
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '0.5rem',
+              height: '0.5rem',
+              overflow: 'hidden',
+              marginBottom: '0.5rem'
+            }}>
               <div style={{
-                fontSize: '0.75rem',
-                color: 'rgba(255, 255, 255, 0.8)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                прогресс
-              </div>
+                background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
+                height: '100%',
+                width: `${getProgressPercentage()}%`,
+                borderRadius: '0.5rem',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+            
+            <div style={{
+              fontSize: '0.875rem',
+              color: 'rgba(255, 255, 255, 0.8)',
+              textAlign: 'center'
+            }}>
+              {state.dailyStats.calories} / {state.dailyStats.targetCalories} ккал
             </div>
           </div>
         </div>
@@ -233,25 +229,6 @@ const HomePage = () => {
               <p className="action-description">{card.description}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Progress Section */}
-      <section className="progress-section">
-        <div className="progress-header">
-          <h3 className="progress-title">Прогресс дня</h3>
-          <span className="progress-percentage">{getProgressPercentage().toFixed(0)}%</span>
-        </div>
-        
-        <div className="progress-bar">
-          <div 
-            className="progress-fill"
-            style={{ width: `${getProgressPercentage()}%` }}
-          />
-        </div>
-        
-        <div className="progress-text">
-          {state.dailyStats.calories} / {state.dailyStats.targetCalories} ккал
         </div>
       </section>
 

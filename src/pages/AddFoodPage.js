@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Save, Edit, Sun, CloudSun, Moon, Cookie, Plus, X } from 'lucide-react';
+import { Brain, Save, Edit, Sun, CloudSun, Moon, Cookie, Plus, X, Mic } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
+import VoiceInput from '../components/VoiceInput';
+import '../components/VoiceInput.css';
 
 const AddFoodPage = () => {
   const { state, actions } = useApp();
   const { showAlert } = useTelegram();
-  const [selectedMeal, setSelectedMeal] = useState('breakfast');
   const [foodDescription, setFoodDescription] = useState('');
-  const [weight, setWeight] = useState('');
-  const [portions, setPortions] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState(null);
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const [selectedQuickFood, setSelectedQuickFood] = useState(null);
 
   // Функция для очистки формы
   const resetForm = () => {
     setFoodDescription('');
-    setWeight('');
-    setPortions(1);
     setAnalysisResults(null);
-    setSelectedQuickFood(null);
-    setShowQuickAdd(false);
+  };
+
+  // Обработка результата голосового ввода
+  const handleVoiceResult = (foodData) => {
+    setFoodDescription(foodData.description);
+    // Убираем автоматический анализ - теперь только заполняем поле
   };
 
   // Очищаем форму при размонтировании компонента
@@ -31,28 +30,6 @@ const AddFoodPage = () => {
       resetForm();
     };
   }, []);
-
-  const mealTypes = [
-    { id: 'breakfast', label: 'Завтрак', icon: Sun },
-    { id: 'lunch', label: 'Обед', icon: CloudSun },
-    { id: 'dinner', label: 'Ужин', icon: Moon },
-    { id: 'snack', label: 'Перекус', icon: Cookie }
-  ];
-
-  const quickFoods = [
-    { name: 'Куриная грудка', calories: 165, protein: 31, fat: 3.6, carbs: 0, icon: '🍗' },
-    { name: 'Рис отварной', calories: 130, protein: 2.7, fat: 0.3, carbs: 28, icon: '🍚' },
-    { name: 'Овсянка', calories: 68, protein: 2.4, fat: 1.4, carbs: 12, icon: '🥣' },
-    { name: 'Яйцо вареное', calories: 70, protein: 6, fat: 5, carbs: 1, icon: '��' },
-    { name: 'Творог 5%', calories: 121, protein: 18, fat: 5, carbs: 3, icon: '🧀' },
-    { name: 'Банан', calories: 89, protein: 1.1, fat: 0.3, carbs: 23, icon: '🍌' },
-    { name: 'Яблоко', calories: 52, protein: 0.3, fat: 0.2, carbs: 14, icon: '🍎' },
-    { name: 'Гречка', calories: 110, protein: 4, fat: 1, carbs: 21, icon: '🌾' },
-    { name: 'Лосось', calories: 208, protein: 25, fat: 12, carbs: 0, icon: '🐟' },
-    { name: 'Брокколи', calories: 34, protein: 2.8, fat: 0.4, carbs: 7, icon: '🥦' },
-    { name: 'Авокадо', calories: 160, protein: 2, fat: 15, carbs: 9, icon: '🥑' },
-    { name: 'Орехи грецкие', calories: 654, protein: 15, fat: 65, carbs: 14, icon: '🌰' }
-  ];
 
   const analyzeFood = async () => {
     if (!foodDescription.trim()) {
@@ -64,7 +41,7 @@ const AddFoodPage = () => {
 
     // Simulate AI analysis (replace with real API call)
     setTimeout(() => {
-      const analysis = analyzeFoodWithAI(foodDescription, selectedMeal);
+      const analysis = analyzeFoodWithAI(foodDescription);
       setAnalysisResults(analysis);
       setIsAnalyzing(false);
     }, 2000);
@@ -77,10 +54,8 @@ const AddFoodPage = () => {
       // Сохраняем в локальное состояние
       const meal = {
         id: Date.now(),
-        type: selectedMeal,
+        type: 'meal',
         description: foodDescription,
-        weight: parseInt(weight) || 0,
-        portions: parseInt(portions),
         nutrition: analysisResults,
         date: new Date().toDateString(),
         timestamp: new Date().toISOString()
@@ -109,13 +84,13 @@ const AddFoodPage = () => {
           // Синхронизируем данные после сохранения
           await actions.syncFromSupabase();
         }
-              } else {
-          try {
-            showAlert('Прием пищи сохранен локально!');
-          } catch (error) {
-            console.log('Прием пищи сохранен локально!');
-          }
+      } else {
+        try {
+          showAlert('Прием пищи сохранен локально!');
+        } catch (error) {
+          console.log('Прием пищи сохранен локально!');
         }
+      }
       
       // Reset form
       resetForm();
@@ -129,80 +104,7 @@ const AddFoodPage = () => {
     }
   };
 
-  const handleQuickAdd = (food) => {
-    setSelectedQuickFood(food);
-    setShowQuickAdd(true);
-  };
-
-  const saveQuickMeal = async () => {
-    if (!selectedQuickFood) return;
-
-    try {
-      // Сохраняем в локальное состояние
-      const meal = {
-        id: Date.now(),
-        type: selectedMeal,
-        description: selectedQuickFood.name,
-        weight: parseInt(weight) || 100,
-        portions: parseInt(portions),
-        nutrition: {
-          calories: selectedQuickFood.calories,
-          protein: selectedQuickFood.protein,
-          fat: selectedQuickFood.fat,
-          carbs: selectedQuickFood.carbs,
-          recommendations: `Быстро добавлен продукт: ${selectedQuickFood.name}`
-        },
-        date: new Date().toDateString(),
-        timestamp: new Date().toISOString()
-      };
-
-      actions.addMeal(meal);
-
-      // Сохраняем в Supabase
-      if (state.supabaseUser) {
-        const foodData = {
-          name: selectedQuickFood.name,
-          calories: selectedQuickFood.calories,
-          proteins: selectedQuickFood.protein,
-          fats: selectedQuickFood.fat,
-          carbs: selectedQuickFood.carbs,
-          date: new Date().toISOString().split('T')[0]
-        };
-
-        const { error } = await actions.addFoodEntry(state.supabaseUser.id, foodData);
-        
-        if (error) {
-          console.warn('Ошибка сохранения в Supabase:', error);
-          showAlert('Сохранено локально, но ошибка в базе данных');
-        } else {
-          try {
-            showAlert('Продукт добавлен в базу данных!');
-            // Синхронизируем данные после сохранения
-            await actions.syncFromSupabase();
-          } catch (error) {
-            console.log('Продукт добавлен в базу данных!');
-          }
-        }
-              } else {
-          try {
-            showAlert('Продукт добавлен локально!');
-          } catch (error) {
-            console.log('Продукт добавлен локально!');
-          }
-        }
-      
-      resetForm();
-    } catch (err) {
-      console.error('Ошибка сохранения:', err);
-      try {
-        showAlert('Ошибка при сохранении');
-      } catch (error) {
-        console.log('Ошибка при сохранении');
-      }
-    }
-  };
-
-  const analyzeFoodWithAI = (description, mealType) => {
+  const analyzeFoodWithAI = (description) => {
     // Simulate AI analysis
     const words = description.toLowerCase().split(' ');
     let totalCalories = 0;
@@ -304,243 +206,255 @@ const AddFoodPage = () => {
 
   return (
     <div>
-      {/* Beautiful Header */}
+      {/* Welcome Section */}
       <section style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: "1.5rem",
-        padding: "2rem",
-        marginBottom: "1.5rem",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: "0 10px 25px rgba(102, 126, 234, 0.3)"
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        marginBottom: '1.5rem',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)'
       }}>
         {/* Background Pattern */}
         <div style={{
-          position: "absolute",
-          top: "-50%",
-          right: "-20%",
-          width: "200px",
-          height: "200px",
-          background: "rgba(255, 255, 255, 0.1)",
-          borderRadius: "50%",
-          animation: "float 6s ease-in-out infinite"
+          position: 'absolute',
+          top: '-50%',
+          right: '-20%',
+          width: '200px',
+          height: '200px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          animation: 'float 6s ease-in-out infinite'
         }} />
         <div style={{
-          position: "absolute",
-          bottom: "-30%",
-          left: "-10%",
-          width: "150px",
-          height: "150px",
-          background: "rgba(255, 255, 255, 0.05)",
-          borderRadius: "50%",
-          animation: "float 8s ease-in-out infinite reverse"
+          position: 'absolute',
+          bottom: '-30%',
+          left: '-10%',
+          width: '150px',
+          height: '150px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '50%',
+          animation: 'float 8s ease-in-out infinite reverse'
         }} />
         
         {/* Content */}
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
           {/* Icon */}
           <div style={{
-            width: "4rem",
-            height: "4rem",
-            background: "rgba(255, 255, 255, 0.2)",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 1rem",
-            backdropFilter: "blur(10px)",
-            border: "2px solid rgba(255, 255, 255, 0.3)"
+            width: '4rem',
+            height: '4rem',
+            background: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1rem',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.3)'
           }}>
-            <Plus className="w-8 h-8 text-white" style={{ animation: "pulse 2s infinite" }} />
+            <Plus className="w-8 h-8 text-white" style={{ animation: 'pulse 2s infinite' }} />
           </div>
           
           {/* Title */}
           <h1 style={{
-            fontSize: "1.75rem",
-            fontWeight: "bold",
-            color: "white",
-            marginBottom: "0.5rem",
-            textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
+            fontSize: '1.75rem',
+            fontWeight: 'bold',
+            color: 'white',
+            marginBottom: '0.5rem',
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
           }}>
             Добавить еду
           </h1>
           
           {/* Subtitle */}
           <p style={{
-            color: "rgba(255, 255, 255, 0.9)",
-            fontSize: "1rem",
-            lineHeight: "1.5",
-            marginBottom: "1.5rem",
-            maxWidth: "320px",
-            margin: "0 auto 1.5rem"
+            color: 'rgba(255, 255, 255, 0.9)',
+            fontSize: '1rem',
+            lineHeight: '1.5',
+            marginBottom: '1.5rem',
+            maxWidth: '320px',
+            margin: '0 auto 1.5rem'
           }}>
-            Опишите что вы съели, и ИИ проанализирует калории и БЖУ
+            Введите данные и проанализируем калории и БЖУ
           </p>
-          
-          {/* Quick Stats */}
-          <div style={{
-            display: "flex",
-            justifyContent: "space-around",
-            background: "rgba(255, 255, 255, 0.15)",
-            borderRadius: "1rem",
-            padding: "1rem",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.2)"
-          }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{
-                fontSize: "1.25rem",
-                fontWeight: "bold",
-                color: "white",
-                marginBottom: "0.25rem"
-              }}>
-                🧠
-              </div>
-              <div style={{
-                fontSize: "0.75rem",
-                color: "rgba(255, 255, 255, 0.8)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                ИИ-анализ
-              </div>
-            </div>
-            <div style={{
-              width: "1px",
-              background: "rgba(255, 255, 255, 0.3)",
-              margin: "0 0.5rem"
-            }} />
-            <div style={{ textAlign: "center" }}>
-              <div style={{
-                fontSize: "1.25rem",
-                fontWeight: "bold",
-                color: "white",
-                marginBottom: "0.25rem"
-              }}>
-                📊
-              </div>
-              <div style={{
-                fontSize: "0.75rem",
-                color: "rgba(255, 255, 255, 0.8)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                БЖУ
-              </div>
-            </div>
-          </div>
+
+
         </div>
       </section>
 
-      {/* Food Input Section */}
+      {/* Input Data Section */}
       <section className="card">
-        {/* Meal Type Selector */}
+        <h3 className="meals-title">Ввод данных</h3>
+        
+        {/* Голосовой ввод */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 className="meals-title">Выберите прием пищи</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            {mealTypes.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setSelectedMeal(id)}
-                className={`btn ${selectedMeal === id ? 'btn-secondary' : ''}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  border: selectedMeal === id ? '2px solid #667eea' : '2px solid #e5e7eb',
-                  background: selectedMeal === id ? '#f0f9ff' : 'white',
-                  color: selectedMeal === id ? '#667eea' : '#6b7280',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <Icon className="w-5 h-5" />
-                <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{label}</span>
-              </button>
-            ))}
-          </div>
+          <VoiceInput onVoiceResult={handleVoiceResult} />
         </div>
-
-        {/* Food Description */}
+        
+        {/* Разделитель */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{
+            flex: 1,
+            height: '1px',
+            background: '#e5e7eb'
+          }} />
+          <span style={{
+            padding: '0 1rem',
+            fontSize: '0.875rem',
+            color: '#6b7280',
+            fontWeight: '500'
+          }}>
+            или
+          </span>
+          <div style={{
+            flex: 1,
+            height: '1px',
+            background: '#e5e7eb'
+          }} />
+        </div>
+        
+        {/* Текстовый ввод */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 className="meals-title">Опишите что вы съели</h3>
+          <label style={{
+            display: 'block',
+            fontSize: '1rem',
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.75rem'
+          }}>
+            Опишите что вы съели
+          </label>
+          
           <textarea
             value={foodDescription}
             onChange={(e) => setFoodDescription(e.target.value)}
-            placeholder="Например: куриная грудка 200г, рис 100г, овощной салат с помидорами и огурцами..."
+            placeholder="Например: паста карбонара, овощной салат с помидорами и огурцами, чизкейк, апельсиновый сок 1 стакан..."
             className="input"
             rows={4}
             style={{ resize: 'none' }}
           />
         </div>
-
-        {/* Portion Estimation */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h3 className="meals-title">Примерные порции (если знаете)</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Вес блюда (г)</label>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="300"
-                className="input"
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Количество порций</label>
-              <input
-                type="number"
-                value={portions}
-                onChange={(e) => setPortions(e.target.value)}
-                placeholder="1"
-                className="input"
-              />
-            </div>
-          </div>
+        
+        {/* Разделитель перед кнопкой */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{
+            flex: 1,
+            height: '1px',
+            background: '#e5e7eb'
+          }} />
+          <span style={{
+            padding: '0 1rem',
+            fontSize: '0.875rem',
+            color: '#6b7280',
+            fontWeight: '500'
+          }}>
+            затем
+          </span>
+          <div style={{
+            flex: 1,
+            height: '1px',
+            background: '#e5e7eb'
+          }} />
         </div>
-
-        {/* AI Analysis Button */}
+        
+        {/* Кнопка анализа */}
         <button
           onClick={analyzeFood}
           disabled={isAnalyzing || !foodDescription.trim()}
-          className="btn"
           style={{
             width: '100%',
-            marginBottom: '1rem',
+            padding: '1.5rem',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
             border: 'none',
-            padding: '1rem',
-            borderRadius: '0.75rem',
-            fontSize: '1rem',
-            fontWeight: '600',
+            borderRadius: '1rem',
+            fontSize: '1.125rem',
+            fontWeight: '700',
             cursor: isAnalyzing ? 'not-allowed' : 'pointer',
             opacity: isAnalyzing || !foodDescription.trim() ? 0.6 : 1,
-            transition: 'all 0.2s'
+            transition: 'all 0.3s ease',
+            boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            if (!isAnalyzing && foodDescription.trim()) {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 12px 35px rgba(102, 126, 234, 0.5)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isAnalyzing && foodDescription.trim()) {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+            }
           }}
         >
+          {/* Background glow effect */}
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+            borderRadius: '1rem',
+            pointerEvents: 'none'
+          }} />
+          
           {isAnalyzing ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <Brain className="w-5 h-5 animate-spin" />
-              Анализирую...
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '0.75rem',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              <Brain className="w-6 h-6 animate-spin" />
+              <span>Анализирую...</span>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <Brain className="w-5 h-5" />
-              Проанализировать ИИ
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '0.75rem',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              <Brain className="w-6 h-6" />
+              <span>Проанализировать ИИ</span>
             </div>
           )}
         </button>
+        
+        {/* Подсказка если поле пустое */}
+        {!foodDescription.trim() && (
+          <p style={{ 
+            fontSize: '0.875rem', 
+            color: '#6b7280', 
+            textAlign: 'center', 
+            marginTop: '0.75rem',
+            fontStyle: 'italic'
+          }}>
+          </p>
+        )}
       </section>
 
       {/* Analysis Results */}
       {analysisResults && (
         <section className="card">
-          <h3 className="meals-title">Результаты анализа</h3>
+          <h3 className="meals-title">📊 Результаты анализа</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div style={{ textAlign: 'center', padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem' }}>
               <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{analysisResults.calories}</div>
@@ -573,233 +487,55 @@ const AddFoodPage = () => {
           
           <button
             onClick={saveMeal}
-            className="btn"
             style={{
               width: '100%',
-              background: '#10b981',
+              background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
               color: 'white',
               border: 'none',
-              padding: '1rem',
-              borderRadius: '0.75rem',
-              fontSize: '1rem',
-              fontWeight: '600',
+              padding: '1.25rem',
+              borderRadius: '1rem',
+              fontSize: '1.125rem',
+              fontWeight: '700',
               cursor: 'pointer',
-              transition: 'all 0.2s'
+              transition: 'all 0.3s ease',
+              boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 12px 35px rgba(16, 185, 129, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.4)';
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <Save className="w-5 h-5" />
-              Сохранить прием пищи
+            {/* Background glow effect */}
+            <div style={{
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              right: '0',
+              bottom: '0',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+              borderRadius: '1rem',
+              pointerEvents: 'none'
+            }} />
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '0.75rem',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              <Save className="w-6 h-6" />
+              <span>Сохранить прием пищи</span>
             </div>
           </button>
         </section>
-      )}
-
-      {/* Quick Add Section */}
-      <section className="card">
-        <h3 className="meals-title">Быстрое добавление</h3>
-        <p style={{ color: '#6b7280', marginBottom: '1rem' }}>Выберите готовый продукт из базы данных</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-          {quickFoods.slice(0, 8).map((food) => (
-            <button
-              key={food.name}
-              onClick={() => handleQuickAdd(food)}
-              className="btn"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                border: '2px solid #e5e7eb',
-                background: 'white',
-                color: '#374151',
-                transition: 'all 0.2s',
-                fontSize: '0.875rem'
-              }}
-            >
-              <span style={{ fontSize: '1.25rem' }}>{food.icon}</span>
-              <span style={{ fontWeight: '500' }}>{food.name}</span>
-            </button>
-          ))}
-        </div>
-        
-        <button
-          onClick={() => setShowQuickAdd(true)}
-          className="btn"
-          style={{
-            width: '100%',
-            marginTop: '1rem',
-            background: '#f3f4f6',
-            color: '#374151',
-            border: '2px dashed #d1d5db',
-            padding: '1rem',
-            borderRadius: '0.75rem',
-            fontSize: '1rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-            <Plus className="w-5 h-5" />
-            Показать все продукты
-          </div>
-        </button>
-      </section>
-
-      {/* Quick Add Modal */}
-      {showQuickAdd && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '1rem',
-            padding: '1.5rem',
-            maxWidth: '400px',
-            width: '100%',
-            maxHeight: '80vh',
-            overflow: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151' }}>Выберите продукт</h3>
-              <button
-                onClick={() => setShowQuickAdd(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              {quickFoods.map((food) => (
-                <button
-                  key={food.name}
-                  onClick={() => handleQuickAdd(food)}
-                  className="btn"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '2px solid #e5e7eb',
-                    background: 'white',
-                    color: '#374151',
-                    transition: 'all 0.2s',
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  <span style={{ fontSize: '1.25rem' }}>{food.icon}</span>
-                  <span style={{ fontWeight: '500' }}>{food.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Quick Add Modal for Selected Food */}
-      {selectedQuickFood && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '1rem',
-            padding: '1.5rem',
-            maxWidth: '400px',
-            width: '100%'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151' }}>Добавить {selectedQuickFood.name}</h3>
-              <button
-                onClick={() => setSelectedQuickFood(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Вес (г)</label>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="100"
-                className="input"
-              />
-            </div>
-            
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Количество порций</label>
-              <input
-                type="number"
-                value={portions}
-                onChange={(e) => setPortions(e.target.value)}
-                placeholder="1"
-                className="input"
-              />
-            </div>
-            
-            <button
-              onClick={saveQuickMeal}
-              className="btn"
-              style={{
-                width: '100%',
-                background: '#10b981',
-                color: 'white',
-                border: 'none',
-                padding: '1rem',
-                borderRadius: '0.75rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <Save className="w-5 h-5" />
-                Добавить продукт
-              </div>
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );
