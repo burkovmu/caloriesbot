@@ -34,7 +34,7 @@ const appReducer = (state, action) => {
     case 'SET_USER':
       return {
         ...state,
-        user: action.payload
+        user: { ...(state.user || {}), ...(action.payload || {}) }
       };
     case 'SET_SUPABASE_USER':
       return {

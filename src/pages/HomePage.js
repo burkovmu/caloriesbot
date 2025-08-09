@@ -142,13 +142,13 @@ const HomePage = () => {
 
       {/* Calories Today Section */}
       <section style={{
-        background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+        background: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)',
         borderRadius: '1rem',
         padding: '1.25rem',
         marginBottom: '1rem',
         position: 'relative',
         overflow: 'hidden',
-        boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)'
+        boxShadow: '0 8px 20px rgba(244, 63, 94, 0.25)'
       }}>
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2 }}>
@@ -237,7 +237,7 @@ const HomePage = () => {
           }}>
             {/* Progress Fill */}
             <div style={{
-              background: 'linear-gradient(90deg, #ffffff 0%, #f0fdf4 100%)',
+              background: 'linear-gradient(90deg, #ffffff 0%, #fff7ed 100%)',
               height: '100%',
               width: `${getProgressPercentage()}%`,
               borderRadius: '0.75rem',
@@ -252,7 +252,7 @@ const HomePage = () => {
               <div style={{
                 position: 'absolute',
                 left: '0.75rem',
-                color: '#10b981',
+                color: '#ea580c',
                 fontWeight: 'bold',
                 fontSize: '0.875rem',
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
