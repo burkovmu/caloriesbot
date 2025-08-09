@@ -318,7 +318,13 @@ const ProfilePage = () => {
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Уровень активности</label>
           <select 
             value={state.user?.activityLevel || 'moderate'}
-            onChange={(e) => actions.setUser({ activityLevel: e.target.value })}
+            onChange={async (e) => {
+              const value = e.target.value;
+              actions.setUser({ activityLevel: value });
+              if (state.supabaseUser) {
+                await actions.saveUserSettings({ ...state.settings, user: { ...(state.user || {}), activityLevel: value } });
+              }
+            }}
             className="input"
           >
             <option value="sedentary">Сидячий образ жизни</option>
@@ -333,7 +339,13 @@ const ProfilePage = () => {
           <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>Цель</label>
           <select 
             value={state.user?.goal || 'maintain'}
-            onChange={(e) => actions.setUser({ goal: e.target.value })}
+            onChange={async (e) => {
+              const value = e.target.value;
+              actions.setUser({ goal: value });
+              if (state.supabaseUser) {
+                await actions.saveUserSettings({ ...state.settings, user: { ...(state.user || {}), goal: value } });
+              }
+            }}
             className="input"
           >
             <option value="lose">Похудение</option>

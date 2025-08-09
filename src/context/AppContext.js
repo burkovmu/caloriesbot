@@ -95,7 +95,27 @@ const appReducer = (state, action) => {
 };
 
 export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+  // Инициализация состояния из localStorage (если есть)
+  const initializeState = () => {
+    try {
+      const saved = localStorage.getItem('calorieTrackerState');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...initialState,
+          ...parsed,
+          user: parsed.user ?? initialState.user,
+          dailyStats: { ...initialState.dailyStats, ...(parsed.dailyStats || {}) },
+          settings: { ...initialState.settings, ...(parsed.settings || {}) }
+        };
+      }
+    } catch (e) {
+      // игнорируем ошибки парсинга
+    }
+    return initialState;
+  };
+
+  const [state, dispatch] = useReducer(appReducer, initialState, initializeState);
   const { getUserOrCreate, addFoodEntry, getFoodEntries, getUserStats, addAIRequest, deleteFoodEntry, getDaysWithEntries, updateUserSettings, loading: supabaseLoading, error: supabaseError } = useSupabase();
   const { telegramUser: hookTelegramUser } = useTelegram();
   
