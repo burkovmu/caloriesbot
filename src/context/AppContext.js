@@ -209,6 +209,17 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
       }
     },
 
+    addAIRequest: async (requestData) => {
+      try {
+        const { data, error } = await addAIRequest(requestData.user_id, requestData.request_text, requestData.response_text);
+        if (error) throw error;
+        return { data, error: null };
+      } catch (error) {
+        console.error('Ошибка сохранения AI запроса:', error);
+        return { data: null, error };
+      }
+    },
+
     loadDaysWithEntries: async () => {
       if (!state.supabaseUser) {
         console.warn('❌ Нет пользователя Supabase для загрузки дней');
@@ -329,6 +340,18 @@ export const AppProvider = ({ children, telegramUser: propTelegramUser }) => {
                 // Загружаем настройки пользователя
                 if (data.settings) {
                   actions.setSettings(data.settings);
+                }
+                
+                // Загружаем активность и цель из настроек (кросс-устройство)
+                if (data.settings && data.settings.user) {
+                  const activityLevel = data.settings.user.activityLevel;
+                  const goal = data.settings.user.goal;
+                  if (activityLevel || goal) {
+                    actions.setUser({
+                      ...(activityLevel ? { activityLevel } : {}),
+                      ...(goal ? { goal } : {})
+                    });
+                  }
                 }
                 
                 // Загружаем цели пользователя

@@ -513,6 +513,15 @@ body {
   }
 }
 
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* Dark mode support - только при явном включении */
 @media (prefers-color-scheme: dark) {
   /* Не применяем автоматически темную тему */

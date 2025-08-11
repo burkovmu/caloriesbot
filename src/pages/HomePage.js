@@ -293,20 +293,127 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section>
-        <h2 className="meals-title">Быстрые действия</h2>
-        <div className="actions-grid">
+      {/* Quick Actions Section */}
+      <section style={{
+        marginBottom: '1.5rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1.5rem',
+          padding: '0.5rem 0'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <div style={{
+              width: '2rem',
+              height: '2rem',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(102, 126, 234, 0.2)'
+            }}>
+              <Plus style={{
+                width: '1rem',
+                height: '1rem',
+                color: 'white'
+              }} />
+            </div>
+            <h2 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              color: '#374151',
+              margin: 0
+            }}>
+              Быстрые действия
+            </h2>
+          </div>
+          <div style={{
+            width: '2rem',
+            height: '1px',
+            background: '#e5e7eb'
+          }} />
+        </div>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '0.75rem'
+        }}>
           {actionCards.map((card, index) => (
             <div
               key={card.title}
-              className="action-card"
               onClick={card.onClick}
+              style={{
+                background: '#ffffff',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+                border: '1px solid #f3f4f6',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.08)';
+                e.currentTarget.style.borderColor = '#f3f4f6';
+              }}
             >
-              <div className={`action-icon ${card.iconClass}`}>
-                <card.icon className="w-8 h-8" />
+              {/* Icon Container */}
+              <div style={{
+                width: '2.5rem',
+                height: '2.5rem',
+                borderRadius: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 0.75rem',
+                background: card.iconClass === 'primary' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' :
+                           card.iconClass === 'secondary' ? 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)' :
+                           card.iconClass === 'blue' ? 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)' :
+                           'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+              }}>
+                <card.icon style={{
+                  width: '1.25rem',
+                  height: '1.25rem',
+                  color: 'white'
+                }} />
               </div>
-              <h3 className="action-title">{card.title}</h3>
-              <p className="action-description">{card.description}</p>
+              
+              {/* Content */}
+              <div>
+                <h3 style={{
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#374151',
+                  margin: '0 0 0.25rem 0',
+                  textAlign: 'center'
+                }}>
+                  {card.title}
+                </h3>
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: '#6b7280',
+                  margin: 0,
+                  textAlign: 'center',
+                  lineHeight: '1.4'
+                }}>
+                  {card.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
