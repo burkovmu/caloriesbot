@@ -71,7 +71,10 @@ export const useSupabase = () => {
         proteins: foodData.proteins || 0,
         fats: foodData.fats || 0,
         carbs: foodData.carbs || 0,
-        date: foodData.date || new Date().toISOString().split('T')[0]
+        date: foodData.date || new Date().toISOString().split('T')[0],
+        recommendations: foodData.recommendations || '',
+        analysis_details: foodData.analysisDetails || {},
+        original_description: foodData.originalDescription || foodData.name
       }
       
       const { data, error } = await supabaseHelpers.addFoodEntry(entry)

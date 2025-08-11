@@ -262,7 +262,35 @@ const TodayMeals = () => {
                   fontSize: '0.875rem'
                 }}>
                   {meal.food_name}
+                  {meal.original_description && meal.original_description !== meal.food_name && (
+                    <span style={{
+                      fontSize: '0.75rem',
+                      color: '#6b7280',
+                      fontWeight: 'normal',
+                      marginLeft: '0.5rem',
+                      fontStyle: 'italic'
+                    }}>
+                      (было: {meal.original_description})
+                    </span>
+                  )}
                 </div>
+                
+                {/* Рекомендации от GPT */}
+                {meal.recommendations && (
+                  <div style={{
+                    fontSize: '0.75rem',
+                    color: '#059669',
+                    background: '#f0fdf4',
+                    padding: '0.5rem',
+                    borderRadius: '0.375rem',
+                    marginBottom: '0.5rem',
+                    border: '1px solid #bbf7d0',
+                    fontStyle: 'italic'
+                  }}>
+                    💡 {meal.recommendations}
+                  </div>
+                )}
+                
                 <div style={{ 
                   fontSize: '0.75rem', 
                   color: '#6b7280',
@@ -308,6 +336,22 @@ const TodayMeals = () => {
                     У: {Math.round(meal.carbs)}g
                   </span>
                 </div>
+                
+                {/* Дополнительные детали анализа */}
+                {meal.analysis_details && meal.analysis_details.originalProduct && (
+                  <div style={{
+                    fontSize: '0.75rem',
+                    color: '#7c3aed',
+                    background: '#f3f4f6',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '0.25rem',
+                    marginBottom: '0.5rem',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    🔍 Анализ: {meal.analysis_details.originalProduct} → {meal.food_name}
+                  </div>
+                )}
+                
                 <div style={{ 
                   fontSize: '0.75rem', 
                   color: '#9ca3af',

@@ -3,7 +3,7 @@ import { Brain, Save, Edit, Sun, CloudSun, Moon, Cookie, X, Mic } from 'lucide-r
 import { useApp } from '../context/AppContext';
 import { useTelegram } from '../hooks/useTelegram';
 import VoiceInput from '../components/VoiceInput';
-import { analyzeFoodWithOpenAI } from '../services/openaiService';
+import { analyzeMultipleFoods } from '../services/multiFoodAnalyzer';
 import { checkAILimits } from '../config/aiSettings';
 import '../components/VoiceInput.css';
 
@@ -51,8 +51,8 @@ const AddFoodPage = () => {
       //   return;
       // }
 
-      // Анализ через GPT-3.5
-      const analysis = await analyzeFoodWithOpenAI(foodDescription);
+      // Анализ через GPT-3.5 (поддерживает несколько продуктов)
+      const analysis = await analyzeMultipleFoods(foodDescription);
       setAnalysisResults(analysis);
       
       // Сохраняем запрос в базу данных
@@ -85,12 +85,15 @@ const AddFoodPage = () => {
     if (!analysisResults) return;
 
     try {
+      // Определяем питательную ценность для сохранения
+      const nutrition = analysisResults.total || analysisResults;
+      
       // Сохраняем в локальное состояние
       const meal = {
         id: Date.now(),
         type: 'meal',
         description: foodDescription,
-        nutrition: analysisResults,
+        nutrition: nutrition,
         date: new Date().toDateString(),
         timestamp: new Date().toISOString()
       };
@@ -99,25 +102,79 @@ const AddFoodPage = () => {
 
       // Сохраняем в Supabase
       if (state.supabaseUser) {
-        const foodData = {
-          name: foodDescription,
-          calories: analysisResults.calories,
-          proteins: analysisResults.protein,
-          fats: analysisResults.fat,
-          carbs: analysisResults.carbs,
-          date: new Date().toISOString().split('T')[0]
-        };
+        // Если есть несколько продуктов, сохраняем каждый отдельно
+        if (analysisResults.products && analysisResults.products.length > 1) {
+          let savedCount = 0;
+          let errorCount = 0;
+          
+          for (const productData of analysisResults.products) {
+            try {
+              const foodData = {
+                name: productData.product || productData.originalProduct,
+                calories: productData.analysis.calories || 0,
+                proteins: productData.analysis.protein || 0,
+                fats: productData.analysis.fat || 0,
+                carbs: productData.analysis.carbs || 0,
+                date: new Date().toISOString().split('T')[0],
+                recommendations: productData.analysis.recommendations || '',
+                analysisDetails: {
+                  originalProduct: productData.originalProduct,
+                  improvedProduct: productData.product,
+                  analysis: productData.analysis
+                },
+                originalDescription: productData.originalProduct
+              };
 
-        const { error } = await actions.addFoodEntry(state.supabaseUser.id, foodData);
-        
-        if (error) {
-          console.warn('Ошибка сохранения в Supabase:', error);
-          showAlert('Сохранено локально, но ошибка в базе данных');
+              const { error } = await actions.addFoodEntry(state.supabaseUser.id, foodData);
+              
+              if (error) {
+                console.warn(`Ошибка сохранения продукта "${productData.product}":`, error);
+                errorCount++;
+              } else {
+                savedCount++;
+              }
+            } catch (err) {
+              console.error(`Ошибка сохранения продукта "${productData.product}":`, err);
+              errorCount++;
+            }
+          }
+          
+          if (errorCount === 0) {
+            showAlert(`Все ${savedCount} продуктов успешно сохранены в базе данных!`);
+          } else if (savedCount > 0) {
+            showAlert(`Сохранено ${savedCount} из ${analysisResults.products.length} продуктов. Ошибок: ${errorCount}`);
+          } else {
+            showAlert('Ошибка сохранения всех продуктов в базе данных');
+          }
         } else {
-          showAlert('Прием пищи сохранен в базе данных!');
-          // Синхронизируем данные после сохранения
-          await actions.syncFromSupabase();
+          // Сохраняем один продукт как обычно
+          const foodData = {
+            name: foodDescription,
+            calories: nutrition.calories,
+            proteins: nutrition.protein,
+            fats: nutrition.fat,
+            carbs: nutrition.carbs,
+            date: new Date().toISOString().split('T')[0],
+            recommendations: nutrition.recommendations || '',
+            analysisDetails: {
+              originalDescription: foodDescription,
+              analysis: nutrition
+            },
+            originalDescription: foodDescription
+          };
+
+          const { error } = await actions.addFoodEntry(state.supabaseUser.id, foodData);
+          
+          if (error) {
+            console.warn('Ошибка сохранения в Supabase:', error);
+            showAlert('Сохранено локально, но ошибка в базе данных');
+          } else {
+            showAlert('Прием пищи сохранен в базе данных!');
+          }
         }
+        
+        // Синхронизируем данные после сохранения
+        await actions.syncFromSupabase();
       } else {
         try {
           showAlert('Прием пищи сохранен локально!');
@@ -252,7 +309,7 @@ const AddFoodPage = () => {
           <textarea
             value={foodDescription}
             onChange={(e) => setFoodDescription(e.target.value)}
-            placeholder="Например: паста карбонара, овощной салат с помидорами и огурцами, чизкейк, апельсиновый сок 1 стакан..."
+            placeholder="Например: куриная грудка 200г, рис 100г, овощной салат, яблоко. GPT автоматически улучшит названия продуктов и покажет детальный анализ каждого"
             className="input"
             rows={4}
             style={{ resize: 'none' }}
@@ -373,36 +430,153 @@ const AddFoodPage = () => {
       {/* Analysis Results */}
       {analysisResults && (
         <section className="card">
-          <h3 className="meals-title">📊 Результаты анализа GPT-3.5</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ textAlign: 'center', padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>{analysisResults.calories}</div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>ккал</div>
+          <h3 className="meals-title">
+            📊 Результаты анализа GPT-3.5
+            {analysisResults.products && analysisResults.products.length > 1 && (
+              <span style={{ 
+                fontSize: '0.75rem', 
+                color: '#667eea', 
+                marginLeft: '0.5rem',
+                fontWeight: 'normal'
+              }}>
+                ({analysisResults.products.length} продуктов)
+              </span>
+            )}
+          </h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ textAlign: 'center', padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#667eea' }}>
+                  {analysisResults.total ? analysisResults.total.calories : analysisResults.calories}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>ккал</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '1rem', background: '#fef3c7', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#d97706' }}>
+                  {analysisResults.total ? analysisResults.total.protein : analysisResults.protein}g
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>белки</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '1rem', background: '#fce7f3', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ec4899' }}>
+                  {analysisResults.total ? analysisResults.total.fat : analysisResults.fat}g
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>жиры</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '1rem', background: '#dcfce7', borderRadius: '0.5rem' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>
+                  {analysisResults.total ? analysisResults.total.carbs : analysisResults.carbs}g
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>углеводы</div>
+              </div>
+                        </div>
+            
+            {/* Отображение отдельных продуктов, если их несколько */}
+            {analysisResults.products && analysisResults.products.length > 1 && (
+              <div style={{ 
+                padding: '1rem', 
+                background: '#f0f9ff', 
+                borderRadius: '0.5rem', 
+                border: '1px solid #e5e7eb',
+                marginBottom: '1rem'
+              }}>
+                <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.75rem' }}>
+                  📋 Детальный анализ по продуктам (названия улучшены GPT)
+                </h4>
+                {analysisResults.products.map((productData, index) => (
+                  <div key={index} style={{ 
+                    padding: '0.75rem', 
+                    background: 'white', 
+                    borderRadius: '0.5rem', 
+                    marginBottom: '0.5rem',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{ 
+                      fontSize: '0.875rem', 
+                      fontWeight: '600', 
+                      color: '#374151', 
+                      marginBottom: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <span style={{ 
+                        background: '#667eea', 
+                        color: 'white', 
+                        borderRadius: '50%', 
+                        width: '1.5rem', 
+                        height: '1.5rem', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        fontSize: '0.75rem'
+                      }}>
+                        {index + 1}
+                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <span style={{ color: '#374151' }}>
+                          {productData.product}
+                        </span>
+                        {productData.originalProduct && productData.originalProduct !== productData.product && (
+                          <span style={{ 
+                            fontSize: '0.75rem', 
+                            color: '#6b7280', 
+                            fontStyle: 'italic',
+                            fontWeight: 'normal'
+                          }}>
+                            Вы ввели: "{productData.originalProduct}"
+                          </span>
+                        )}
+                      </div>
+                      {productData.error && (
+                        <span style={{ 
+                          fontSize: '0.75rem', 
+                          color: '#ef4444', 
+                          fontStyle: 'italic'
+                        }}>
+                          (ошибка анализа)
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(4, 1fr)', 
+                      gap: '0.5rem',
+                      fontSize: '0.75rem'
+                    }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontWeight: '600', color: '#667eea' }}>{productData.analysis.calories}</span>
+                        <div style={{ color: '#6b7280' }}>ккал</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontWeight: '600', color: '#d97706' }}>{productData.analysis.protein}g</span>
+                        <div style={{ color: '#6b7280' }}>белки</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontWeight: '600', color: '#ec4899' }}>{productData.analysis.fat}g</span>
+                        <div style={{ color: '#6b7280' }}>жиры</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontWeight: '600', color: '#16a34a' }}>{productData.analysis.carbs}g</span>
+                        <div style={{ color: '#6b7280' }}>углеводы</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div style={{ 
+              padding: '1rem', 
+              background: '#f8fafc', 
+              borderRadius: '0.5rem', 
+              border: '1px solid #e5e7eb',
+              marginBottom: '1rem'
+            }}>
+              <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>💡 Рекомендации</h4>
+              <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5' }}>
+                {analysisResults.recommendations}
+              </p>
             </div>
-            <div style={{ textAlign: 'center', padding: '1rem', background: '#fef3c7', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#d97706' }}>{analysisResults.protein}g</div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>белки</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '1rem', background: '#fce7f3', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ec4899' }}>{analysisResults.fat}g</div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>жиры</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '1rem', background: '#dcfce7', borderRadius: '0.5rem' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>{analysisResults.carbs}g</div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>углеводы</div>
-            </div>
-          </div>
-          
-          <div style={{ 
-            padding: '1rem', 
-            background: '#f8fafc', 
-            borderRadius: '0.5rem', 
-            border: '1px solid #e5e7eb',
-            marginBottom: '1rem'
-          }}>
-            <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>💡 Рекомендации</h4>
-            <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5' }}>{analysisResults.recommendations}</p>
-          </div>
           
           <button
             onClick={saveMeal}
